@@ -22,7 +22,7 @@
                 <div class="rz-dialog-side-title" style="display: inline" id="rz-dialog-side-label">@((MarkupString)sideDialogOptions.Title)</div>
                 @if (sideDialogOptions.ShowClose)
                 {
-                    <a href="javascript:void(0)" class="rz-dialog-side-titlebar-close" @onclick="@(_ => Service.CloseSide(null))" role="button">
+                    <a href="javascript:void(0)" class="rz-dialog-side-titlebar-close" @onclick="@(_ => Service.CloseSide(null))" role="button" tabindex="@sideDialogOptions.CloseTabIndex">
                         <span class="rzi rzi-times"></span>
                     </a>
                 }
@@ -133,6 +133,9 @@
 
     string GetSideDialogStyle()
     {
-        return $"{sideDialogOptions.Style}{(sideDialogOptions.Width != null ? $" width: {sideDialogOptions.Width}" : "")}{(sideDialogOptions.Height != null ? $" height: {sideDialogOptions.Height}" : "")}";
+        string widthStyle = string.IsNullOrEmpty(sideDialogOptions.Width) ? string.Empty : $"width: {sideDialogOptions.Width};";
+        string heightStyle = string.IsNullOrEmpty(sideDialogOptions.Height) ? string.Empty : $"height: {sideDialogOptions.Height};";
+
+        return $"{widthStyle}{heightStyle}{sideDialogOptions.Style}";
     }
 }
