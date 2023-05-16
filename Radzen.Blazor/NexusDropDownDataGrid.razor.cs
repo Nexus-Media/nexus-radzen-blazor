@@ -34,11 +34,10 @@ namespace Radzen.Blazor
         [Parameter]
         public bool Chips { get; set; }
 
-
-        /// <summary>
-        /// Gets or sets a value indicating whether popup should open on focus. Set to <c>false</c> by default.
-        /// </summary>
-        /// <value><c>true</c> if popup should open on focus; otherwise, <c>false</c>.</value>
+                /// <summary>
+                /// Gets or sets a value indicating whether popup should open on focus. Set to <c>false</c> by default.
+                /// </summary>
+                /// <value><c>true</c> if popup should open on focus; otherwise, <c>false</c>.</value>
         [Parameter]
         public bool OpenOnFocus { get; set; }
 
