@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
 using Radzen.Blazor;
 using System;
 using System.Collections;
@@ -17,6 +18,26 @@ using System.Threading.Tasks;
 
 namespace Radzen
 {
+    /// <summary>
+    /// Class with IServiceCollection extensions methods.
+    /// </summary>
+    public static class ServiceCollectionExtensions
+    {
+        /// <summary>
+        /// Add Radzen Blazor components services
+        /// </summary>
+        /// <param name="services">Service collection</param>
+        public static IServiceCollection AddRadzenComponents(this IServiceCollection services)
+        {
+            services.AddScoped<DialogService>();
+            services.AddScoped<NotificationService>();
+            services.AddScoped<TooltipService>();
+            services.AddScoped<ContextMenuService>();
+
+            return services;
+        }
+    }
+
     /// <summary>
     /// Html editor mode (Rendered or Raw). Also used for toolbar buttons to enable/disable according to mode.
     /// </summary>
@@ -61,6 +82,11 @@ namespace Radzen
     /// </summary>
     public class DataGridColumnSettings
     {
+        /// <summary>
+        /// Property.
+        /// </summary>
+        public string UniqueID { get; set; }
+
         /// <summary>
         /// Property.
         /// </summary>
@@ -331,6 +357,17 @@ namespace Radzen
         /// </summary>
         /// <value><c>true</c> if this is the first time; otherwise, <c>false</c>.</value>
         public bool FirstRender { get; internal set; }
+    }
+
+    /// <summary>
+    /// Supplies information about a <see cref="RadzenDataGrid{TItem}.LoadSettings" /> event that is being raised.
+    /// </summary>
+    public class DataGridLoadSettingsEventArgs
+    {
+        /// <summary>
+        /// Gets or sets the settings.
+        /// </summary>
+        public DataGridSettings Settings { get; set; }
     }
 
     /// <summary>
@@ -636,6 +673,45 @@ namespace Radzen
     }
 
     /// <summary>
+    /// Specifies the ways a <see cref="RadzenTimeline" /> component renders line and content items.
+    /// </summary>
+    public enum LinePosition
+    {
+        /// <summary>
+        /// The RadzenTimeline line is displayed at the center of the component.
+        /// </summary>
+        Center,
+        /// <summary>
+        /// The RadzenTimeline line is displayed at the center of the component with alternating content position.
+        /// </summary>
+        Alternate,
+        /// <summary>
+        /// The RadzenTimeline line is displayed at the start of the component.
+        /// </summary>
+        Start,
+        /// <summary>
+        /// The RadzenTimeline line is displayed at the end of the component.
+        /// </summary>
+        End,
+        /// <summary>
+        /// The RadzenTimeline line is displayed at the left side of the component.
+        /// </summary>
+        Left,
+        /// <summary>
+        /// The RadzenTimeline line is displayed at the right side of the component.
+        /// </summary>
+        Right,
+        /// <summary>
+        /// The RadzenTimeline line is displayed at the top of the component.
+        /// </summary>
+        Top,
+        /// <summary>
+        /// The RadzenTimeline line is displayed at the bottom of the component.
+        /// </summary>
+        Bottom
+    }
+
+    /// <summary>
     /// Specifies the position at which a Radzen Blazor component renders its built-in <see cref="RadzenPager" />.
     /// </summary>
     public enum PagerPosition
@@ -813,6 +889,72 @@ namespace Radzen
         /// An alert larger than the default.
         /// </summary>
         Large
+    }
+
+    /// <summary>
+    /// Specifies the size of a point in <see cref="RadzenTimelineItem" />.
+    /// </summary>
+    public enum PointSize
+    {
+        /// <summary>
+        /// The smallest.
+        /// </summary>
+        ExtraSmall,
+        /// <summary>
+        /// Smaller than the default.
+        /// </summary>
+        Small,
+        /// <summary>
+        /// The default size.
+        /// </summary>
+        Medium,
+        /// <summary>
+        /// Larger than the default.
+        /// </summary>
+        Large
+    }
+
+    /// <summary>
+    /// Specifies the display style or severity of a <see cref="RadzenTimelineItem" />
+    /// </summary>
+    public enum PointStyle
+    {
+        /// <summary>
+        /// Primary styling. Similar to primary buttons.
+        /// </summary>
+        Primary,
+        /// <summary>
+        /// Secondary styling. Similar to secondary buttons.
+        /// </summary>
+        Secondary,
+        /// <summary>
+        /// Light styling. Similar to light buttons.
+        /// </summary>
+        Light,
+        /// <summary>
+        /// Dark styling. Similar to dark buttons.
+        /// </summary>
+        Base,
+        /// <summary>
+        /// The default styling.
+        /// </summary>
+        Dark,
+        /// <summary>
+        /// Success styling.
+        /// </summary>
+        Success,
+        /// <summary>
+        /// Danger styling.
+        /// </summary>
+        Danger,
+        /// <summary>
+        /// Warning styling.
+        /// </summary>
+        Warning,
+        /// <summary>
+        /// Informative styling.
+        /// </summary>
+        Info
     }
 
     /// <summary>
@@ -2864,9 +3006,37 @@ namespace Radzen
         }
     }
 
+    /// <summary>
+    /// CoordinateSystem enum
+    /// </summary>
     public enum CoordinateSystem
     {
+        /// <summary>
+        /// Cartesian CoordinateSystem
+        /// </summary>
         Cartesian,
+        /// <summary>
+        /// Cartesian CoordinateSystem
+        /// </summary>
         Polar
+    }
+
+    /// <summary>
+    /// Menu Item display style enum
+    /// </summary>
+    public enum MenuItemDisplayStyle
+    {
+        /// <summary>
+        /// Show text only
+        /// </summary>
+        Text,
+        /// <summary>
+        /// Show only icons
+        /// </summary>
+        Icon,
+        /// <summary>
+        /// Both icons and text are displayed
+        /// </summary>
+        IconAndText
     }
 }

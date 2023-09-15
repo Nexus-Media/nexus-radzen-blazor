@@ -66,9 +66,19 @@ namespace Radzen
                 if (_PageSize != value)
                 {
                     _PageSize = value;
-                    OnPageSizeChanged(value);
+                    InvokeAsync(() => OnPageSizeChanged(value));
                 }
             }
+        }
+
+        internal int GetPageSize()
+        {
+            return _PageSize;
+        }
+
+        internal void SetPageSize(int value)
+        {
+            _PageSize = value;
         }
 
         /// <summary>

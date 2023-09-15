@@ -145,6 +145,11 @@ namespace Radzen.Blazor
                 await popup.CloseAsync(Element);
             }
 
+            if(Min.HasValue && CurrentDate < Min.Value || Max.HasValue && CurrentDate > Max.Value) 
+            {
+                return;
+            }
+
             if (!Disabled)
             {
                 DateTime date = CurrentDate;
@@ -294,7 +299,7 @@ namespace Radzen.Blazor
 
         DateRenderEventArgs DateAttributes(DateTime value)
         {
-            var args = new Radzen.DateRenderEventArgs() { Date = value, Disabled = (Min.HasValue && value < Min.Value) || (Max.HasValue && value > Max.Value) };
+            var args = new DateRenderEventArgs() { Date = value, Disabled = (Min.HasValue && value < Min.Value) || (Max.HasValue && value > Max.Value) };
 
             if (DateRender != null)
             {
@@ -349,7 +354,7 @@ namespace Radzen.Blazor
                     }
                     else
                     {
-                        if (value is DateTime dateTime)
+                        if (value is DateTime dateTime && dateTime != default(DateTime))
                         {
                             DateTimeValue = DateTime.SpecifyKind(dateTime, Kind);
                         }
@@ -439,7 +444,7 @@ namespace Radzen.Blazor
         {
             get
             {
-                return DateTimeValue.HasValue;
+                return DateTimeValue.HasValue && DateTimeValue != default(DateTime);
             }
         }
 
@@ -451,7 +456,7 @@ namespace Radzen.Blazor
         {
             get
             {
-                return string.Format(Culture, "{0:" + DateFormat + "}", Value);
+                return HasValue ? string.Format(Culture, "{0:" + DateFormat + "}", Value) : "";
             }
         }
 
@@ -489,20 +494,14 @@ namespace Radzen.Blazor
         protected async Task ParseDate()
         {
             DateTime? newValue;
-            DateTime value;
             var inputValue = await JSRuntime.InvokeAsync<string>("Radzen.getInputValue", input);
+            bool valid = TryParseInput(inputValue, out DateTime value);
 
-            var valid = DateTime.TryParseExact(inputValue, DateFormat, null, DateTimeStyles.None, out value);
             var nullable = Nullable.GetUnderlyingType(typeof(TValue)) != null || AllowClear;
-
-            if (!valid)
-            {
-                valid = DateTime.TryParse(inputValue, out value);
-            }
 
             if (valid && !DateAttributes(value).Disabled)
             {
-                newValue = TimeOnly && CurrentDate != null ? new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, value.Hour, value.Minute, value.Second) : value;
+                newValue = TimeOnly && CurrentDate != default(DateTime) ? new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, value.Hour, value.Minute, value.Second) : value;
             }
             else
             {
@@ -544,6 +543,40 @@ namespace Radzen.Blazor
                 await Change.InvokeAsync(DateTimeValue);
                 StateHasChanged();
             }
+        }
+
+        /// <summary>
+        /// Parse the input using an function outside the Radzen-library
+        /// </summary>
+        [Parameter]
+        public Func<string, DateTime?> ParseInput { get; set; }
+
+        private bool TryParseInput(string inputValue, out DateTime value)
+        {
+            value = DateTime.MinValue;
+            bool valid = false;
+
+            if (ParseInput != null)
+            {
+                DateTime? custom = ParseInput.Invoke(inputValue);
+
+                if (custom.HasValue)
+                {
+                    valid = true;
+                    value = custom.Value;
+                }
+            }
+            else
+            {
+                valid = DateTime.TryParseExact(inputValue, DateFormat, null, DateTimeStyles.None, out value);
+
+                if (!valid)
+                {
+                    valid = DateTime.TryParse(inputValue, out value);
+                }
+            }
+
+            return valid;
         }
 
         async Task Clear()
@@ -596,6 +629,13 @@ namespace Radzen.Blazor
         /// <value><c>true</c> if input is allowed; otherwise, <c>false</c>.</value>
         [Parameter]
         public bool AllowInput { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether popup datepicker button is shown.
+        /// </summary>
+        /// <value><c>true</c> if need show button open datepicker popup; <c>false</c> if need hide button, click for input field open datepicker popup.</value>
+        [Parameter]
+        public bool ShowButton { get; set; } = true;
 
         private bool IsReadonly => ReadOnly || !AllowInput;
 
@@ -700,7 +740,7 @@ namespace Radzen.Blazor
 
         double parseStep(string step)
         {
-            return string.IsNullOrEmpty(step) || step == "any" ? 1 : double.Parse(step.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture);
+            return string.IsNullOrEmpty(step) || step == "any" ? 1 : double.Parse(step.Replace(",", "."), CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -798,7 +838,7 @@ namespace Radzen.Blazor
             }
         }
 
-        async System.Threading.Tasks.Task OnChange()
+        async Task OnChange()
         {
             if ((typeof(TValue) == typeof(DateTimeOffset) || typeof(TValue) == typeof(DateTimeOffset?)) && Value != null)
             {
@@ -824,7 +864,7 @@ namespace Radzen.Blazor
                             .ToString();
         }
 
-        private async System.Threading.Tasks.Task SetDay(DateTime newValue)
+        private async Task SetDay(DateTime newValue)
         {
             if (ShowTimeOkButton)
             {
@@ -849,7 +889,6 @@ namespace Radzen.Blazor
             var newValue = new DateTime(currentValue.Year, month, Math.Min(currentValue.Day, DateTime.DaysInMonth(currentValue.Year, month)), currentValue.Hour, currentValue.Minute, currentValue.Second);
 
             CurrentDate = newValue;
-            Close();
         }
 
         private void SetYear(int year)
@@ -858,7 +897,6 @@ namespace Radzen.Blazor
             var newValue = new DateTime(year, currentValue.Month, Math.Min(currentValue.Day, DateTime.DaysInMonth(year, currentValue.Month)), currentValue.Hour, currentValue.Minute, currentValue.Second);
 
             CurrentDate = newValue;
-            Close();
         }
 
         private string getOpenPopup()
@@ -868,7 +906,7 @@ namespace Radzen.Blazor
 
         private string getOpenPopupForInput()
         {
-            return PopupRenderMode == PopupRenderMode.Initial && !Disabled && !ReadOnly && !Inline && !AllowInput ? $"Radzen.togglePopup(this.parentNode, '{PopupID}')" : "";
+            return PopupRenderMode == PopupRenderMode.Initial && !Disabled && !ReadOnly && !Inline && (!AllowInput || !ShowButton) ? $"Radzen.togglePopup(this.parentNode, '{PopupID}')" : "";
         }
 
         /// <summary>
@@ -991,6 +1029,17 @@ namespace Radzen.Blazor
             {
                 await popup.ToggleAsync(Element);
             }
+        }
+
+        string GetDayCssClass(DateTime date, DateRenderEventArgs dateArgs, bool forCell = true)
+        {
+            return ClassList.Create()
+                               .Add("rz-state-default", !forCell)
+                               .Add("rz-datepicker-other-month", CurrentDate.Month != date.Month)
+                               .Add("rz-state-active", !forCell && DateTimeValue.HasValue && DateTimeValue.Value.Date.CompareTo(date.Date) == 0)
+                               .Add("rz-datepicker-today", !forCell && DateTime.Now.Date.CompareTo(date.Date) == 0)
+                               .Add("rz-state-disabled", !forCell && dateArgs.Disabled)
+                               .ToString();
         }
     }
 }

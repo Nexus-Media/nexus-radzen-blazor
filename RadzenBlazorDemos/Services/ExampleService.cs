@@ -42,9 +42,17 @@ namespace RadzenBlazorDemos
             Children = new [] {
                 new Example()
                 {
+                    Name = "Themes",
+                    Path = "themes",
+                    Title = "Blazor Themes",
+                    Icon = "&#xe40a",
+                    Tags = new[] { "theme", "color", "background", "border", "utility", "css", "var"}
+                },
+                new Example()
+                {
                     Name = "Colors",
                     Path = "colors",
-                    Title = "Blazor theme colors",
+                    Title = "Blazor Theme Colors",
                     Icon = "&#xe891",
                     Tags = new[] { "color", "background", "border", "utility", "css", "var"}
                 },
@@ -780,6 +788,15 @@ namespace RadzenBlazorDemos
                     Path = "splitter",
                     Icon = "&#xe94f",
                     Tags = new [] { "splitter", "layout"}
+                },
+                new Example()
+                {
+                    New = true,
+                    Name = "Popup",
+                    Title = "Blazor Popup component",
+                    Path = "popup",
+                    Icon = "&#xe0cb",
+                    Tags = new [] { "popup", "dropdown"}
                 }
             }
         },
@@ -1296,6 +1313,15 @@ namespace RadzenBlazorDemos
                     Title = "Blazor gauge styling",
                     Icon = "&#xe41d",
                     Tags = new [] { "gauge", "graph", "styling" }
+                },
+                new Example
+                {
+                    Name = "Timeline",
+                    New = true,
+                    Path = "timeline",
+                    Title = "Blazor Timeline component",
+                    Icon = "&#xe00d",
+                    Tags = new [] { "timeline", "time", "line" }
                 },
                 new Example()
                 {

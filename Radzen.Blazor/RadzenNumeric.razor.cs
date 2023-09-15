@@ -42,9 +42,8 @@ namespace Radzen.Blazor
         {
             object minArg = Min;
             object maxArg = Max;
-
-            return !(typeof(TValue).IsGenericType && typeof(TValue).GetGenericTypeDefinition() == typeof(Nullable<>)) &&
-                (Min != null || Max != null) ? $@"Radzen.numericOnInput(event, {minArg ?? "null"}, {maxArg ?? "null"})" : "";
+            string isNull = IsNullable.ToString().ToLower();
+            return (Min != null || Max != null) ? $@"Radzen.numericOnInput(event, {minArg ?? "null"}, {maxArg ?? "null"}, {isNull})" : "";
         }
 
         private string getOnPaste()
@@ -53,6 +52,20 @@ namespace Radzen.Blazor
             object maxArg = Max;
 
             return Min != null || Max != null ? $@"Radzen.numericOnPaste(event, {minArg ?? "null"}, {maxArg ?? "null"})" : "";
+        }
+
+        bool? isNullable;
+        bool IsNullable
+        {
+            get
+            {
+                if (isNullable == null)
+                {
+                    isNullable = typeof(TValue).IsGenericType && typeof(TValue).GetGenericTypeDefinition() == typeof(Nullable<>);
+                }
+
+                return isNullable.Value;
+            }
         }
 
         async System.Threading.Tasks.Task UpdateValueWithStep(bool stepUp)

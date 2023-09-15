@@ -9,12 +9,22 @@ else
     <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H2" class="my-4">Custom filtering template with IQueryable binding</RadzenText>
         <RadzenDataGrid @ref="grid" Data=@employees FilterMode="FilterMode.Simple" AllowFiltering="true" AllowPaging="true" AllowSorting="true" TItem="Employee" ColumnWidth="200px">
         <Columns>
-            <RadzenDataGridColumn TItem="Employee" Property="ID" Title="ID" />
+            <RadzenDataGridColumn TItem="Employee" Property="ID" Title="ID" FilterValue="@idValue">
+                <FilterTemplate>
+                    <RadzenNumeric @bind-Value=idValue ShowUpDown=false Style="width:100%" />
+                </FilterTemplate>
+            </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Employee" Title="Customer" Property="CompanyName" Type="typeof(IEnumerable<string>)" 
                     FilterValue="@selectedCompanyNames" FilterOperator="FilterOperator.Contains" LogicalFilterOperator="LogicalFilterOperator.Or">
                 <FilterTemplate>
                     <RadzenDropDown @bind-Value=@selectedCompanyNames Style="width:100%;"
                         Change=@OnSelectedCompanyNamesChange Data="@(companyNames)" AllowClear="true" Multiple="true" />
+                </FilterTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Employee" Title="Hire Date" Property="HireDate.Date" FormatString="{0:d}"
+                                  FilterValue="@hireDate?.Date">
+                <FilterTemplate>
+                    <RadzenDatePicker @bind-Value=@hireDate Style="width:100%;" AllowClear="true" DateFormat="d" />
                 </FilterTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Employee" Title="WorkStatus" Property="WorkStatus" Type="typeof(IEnumerable<WorkStatus>)" Sortable=false
@@ -52,7 +62,8 @@ else
 
 @code {
     RadzenDataGrid<Employee> grid;
-
+    int? idValue;
+    DateTime? hireDate;
     TitleOfCourtesy? currentTOC;
     IEnumerable<string> selectedCompanyNames;
     IEnumerable<WorkStatus> selectedWorkStatus;
@@ -86,6 +97,7 @@ else
     {
         public int ID { get; set; }
         public string CompanyName { get; set; }
+        public DateTime HireDate { get; set; }
         public TitleOfCourtesy TitleOfCourtesy { get; set; }
         public IEnumerable<WorkStatus> WorkStatus { get; set; }
         public IEnumerable<WorkStatusModel> WorkStatuses { get; set; }
@@ -135,6 +147,7 @@ else
             {
                 ID = i,
                 CompanyName = i < 4 ? companyNames[0] : companyNames[i - 4],
+                HireDate = DateTime.Now.AddMonths(-i),
                 TitleOfCourtesy = i < 5 ? TitleOfCourtesy.Mr : TitleOfCourtesy.Ms,
                     WorkStatus = i < 3 ?
                             new WorkStatus[] { WorkStatus.Office } :
