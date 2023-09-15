@@ -743,6 +743,8 @@ $datepicker-calendar-selected-hover-background-color: var(--rz-secondary-light) 
 $datepicker-calendar-border: none !default;
 $datepicker-calendar-border-radius: 50% !default;
 $datepicker-calendar-transition: var(--rz-transition-all) !default;
+$datepicker-calendar-today-color: var(--rz-text-color) !default;
+$datepicker-calendar-today-box-shadow: inset 0 0 0 1px var(--rz-text-color) !default;
 $datepicker-title-height: 3.5rem !default;
 $timepicker-background-color: var(--rz-base-background-color) !default;
 $timepicker-button-background-color: var(--rz-base-300) !default;
@@ -1144,6 +1146,9 @@ $tabs-transition: var(--rz-transition-all) !default;
 
 .rz-tabview {
   &.rz-tabview-top > .rz-tabview-nav {
+    li {
+      border-bottom: 2px solid transparent;
+    }
     .rz-tabview-selected {
       border-top-width: 0;
       border-bottom: 2px solid $tabs-tab-selected-bottom-border-color;
@@ -1159,6 +1164,9 @@ $tabs-transition: var(--rz-transition-all) !default;
     }
   }
   &.rz-tabview-left > .rz-tabview-nav {
+    li {
+      border-right: 2px solid transparent;
+    }
     .rz-tabview-selected {
       border-left-width: 0;
       border-right: 2px solid $tabs-tab-selected-bottom-border-color;
@@ -1283,8 +1291,8 @@ $progressbar-background-color: var(--rz-primary-lighter) !default;
 $progressbar-border-radius: 0 !default;
 $progressbar-height: 0.25rem !default;
 
-.rz-progressbar-label {
-  display: none !important;
+.rz-progressbar:has(.rz-progressbar-label) {
+  --rz-progressbar-height: 1.25rem;
 }
 
 // ProgressBarCircular
@@ -1298,6 +1306,9 @@ $chart-axis-label-color: var(--rz-base-500) !default;
 
 // Gauge
 $gauge-arc-scale-color: var(--rz-base-300) !default;
+
+// Timeline
+$rz-timeline-item-padding: 1rem !default;
 
 // Editor
 $editor-border: var(--rz-border-base-300)  !default;

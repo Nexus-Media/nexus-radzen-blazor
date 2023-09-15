@@ -216,7 +216,7 @@ namespace Radzen.Blazor
         /// </summary>
         /// <value>The search input placeholder text.</value>
         [Parameter]
-        public string SearchText { get; set; } = "Search...";
+        public string SearchTextPlaceholder { get; set; } = "Search...";
 
         /// <summary>
         /// Gets or sets the selected value.
@@ -286,16 +286,10 @@ namespace Radzen.Blazor
         protected override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
-            {
-    #if NET5_0_OR_GREATER
-                if (grid != null)
-                {
-                    grid.SetAllowVirtualization(AllowVirtualization);
-                }
-    #endif            
+            {          
                 if(Visible && LoadData.HasDelegate && Data == null)
                 {
-                    LoadData.InvokeAsync(new Radzen.LoadDataArgs() { Skip = 0, Top = PageSize });
+                    LoadData.InvokeAsync(new Radzen.LoadDataArgs() { Skip = 0, Top = PageSize, Filter = searchText });
                 }
 
                 StateHasChanged();
@@ -314,6 +308,21 @@ namespace Radzen.Blazor
             if (!LoadData.HasDelegate)
             {
                 searchText = null;
+                await OnLoadData(new Radzen.LoadDataArgs() { Skip = 0, Top = PageSize });
+            }
+        }
+
+        /// <summary>
+        /// Set parameters as an asynchronous operation.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+
+            if (!string.IsNullOrEmpty(searchText) && !LoadData.HasDelegate)
+            {
                 await OnLoadData(new Radzen.LoadDataArgs() { Skip = 0, Top = PageSize });
             }
         }
@@ -586,7 +595,6 @@ namespace Radzen.Blazor
 
         async Task DebounceFilter()
         {
-            searchText = await JSRuntime.InvokeAsync<string>("Radzen.getInputValue", search);
             if (searchText != previousSearch)
             {
                 previousSearch = searchText;
@@ -599,7 +607,7 @@ namespace Radzen.Blazor
         async Task RefreshAfterFilter()
         {
 #if NET5_0_OR_GREATER
-            if (grid?.virtualize != null)
+            if (IsVirtualizationAllowed() && grid != null)
             {
                 if(string.IsNullOrEmpty(searchText))
                 {
@@ -614,7 +622,15 @@ namespace Radzen.Blazor
                         StateHasChanged();
                     }
                 }
-                await grid.virtualize.RefreshDataAsync();
+
+                if (grid.Virtualize != null)
+                {
+                    await grid.RefreshDataAsync();
+                }
+                else
+                {
+                    await grid.Reload();
+                }
             }
 #endif
             StateHasChanged();

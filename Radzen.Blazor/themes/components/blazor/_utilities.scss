@@ -217,7 +217,7 @@ $rz-base-background-color: var(--rz-white) !default;
   --rz-base-background-color: #{$rz-base-background-color};
 }
 
-// Base Styles Map
+// Base/Light/Dark Styles Map 
 
 $base-styles-map: () !default;
 $base-styles-map: map-merge(

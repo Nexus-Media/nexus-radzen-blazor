@@ -58,7 +58,7 @@
                             Multiple="true" AllowFiltering="@ColumnsPickerAllowFiltering"
                             Placeholder="@ColumnsText"
                             Data="allPickableColumns"
-                            TextProperty="Title" />
+                            TextProperty="ColumnPickerTitle" />
                     </div>
 
                 }
@@ -93,7 +93,7 @@
                     }
                     @foreach (var column in visibleColumns)
                     {
-                        <col id=@(getColumnResizerId(visibleColumns.IndexOf(column)) + "-col") style="@column.GetStyle()">
+                        <col id=@(getColumnUniqueId(visibleColumns.IndexOf(column)) + "-col") style="@column.GetStyle()">
                     }
                 </colgroup>
                 <thead>
@@ -174,9 +174,15 @@
                                                                     <i class="rzi">date_range</i>
                                                                 </button>
                                                                 var filterValue = column.GetFilterValue();
+                                                                var filterOperator = column.GetFilterOperator();
                                                                 @if (filterValue != null && filters.Any(d => d.Property == column.GetFilterProperty()))
                                                                 {
                                                                     <span class="rz-current-filter">@string.Format("{0:" + getFilterDateFormat(column) + "}", filterValue)</span>
+                                                                    <i @onclick="@((args) => ClearFilter(column))" class="rzi rz-cell-filter-clear">close</i>
+                                                                }
+                                                                else if ((filterOperator == FilterOperator.IsNull || filterOperator == FilterOperator.IsNotNull) && filters.Any(d => d.Property == column.GetFilterProperty()))
+                                                                {
+                                                                    <span class="rz-current-filter">@column.GetFilterOperatorText(filterOperator)</span>
                                                                     <i @onclick="@((args) => ClearFilter(column))" class="rzi rz-cell-filter-clear">close</i>
                                                                 }
                                                                 <div id="@($"{PopupID}{column.GetFilterProperty()}")" class="rz-overlaypanel"
@@ -274,7 +280,7 @@
                                                                 <RadzenDataGridFilterMenu Grid="@this" Column="@column" />
                                                                 <RadzenDatePicker Disabled=@column.CanSetFilterValue() TValue="@object" Style="width:100%" AllowInput=@(AllowFilterDateInput) AllowClear="true"
                                                       ShowTime="false" ShowTimeOkButton="false" DateFormat="@getFilterDateFormat(column)"
-                                                      Value="@column.GetFilterValue()" Change="@(args => { if(!args.HasValue) { ClearFilter(column, true); } else {column.SetFilterValue(args.Value); ApplyFilter(column, true);} })" />
+                                                      Value="@column.GetFilterValue()" Change="@(args => { if(!args.HasValue) { InvokeAsync(() => ClearFilter(column, true)); } else {column.SetFilterValue(args.Value); InvokeAsync(() => ApplyFilter(column, true));} })" />
                                                             }
                                                         }
                                                         else if (PropertyAccess.IsNullableEnum(column.FilterPropertyType) || PropertyAccess.IsEnum(column.FilterPropertyType))
@@ -282,7 +288,7 @@
                                                             <RadzenDropDown Style="width:100%" AllowClear="true" AllowFiltering="false" TValue="@object"
                                                     Value=@column.GetFilterValue() Multiple="false" Placeholder="@EnumFilterSelectText" TextProperty="Text" ValueProperty="Value"
                                                                             Data=@((PropertyAccess.IsNullableEnum(column.FilterPropertyType) ? new object[]{ new { Value = -1, Text = EnumNullFilterText}} : Enumerable.Empty<object>()).Concat(EnumExtensions.EnumAsKeyValuePair(Nullable.GetUnderlyingType(column.FilterPropertyType) ?? column.FilterPropertyType)))
-                                                    Change="@(args => {column.SetFilterValue(args);column.SetFilterOperator(object.Equals(args, -1) ? FilterOperator.IsNull : FilterOperator.Equals);ApplyFilter(column, true);})" />
+                                                    Change="@(args => {column.SetFilterValue(args);column.SetFilterOperator(object.Equals(args, -1) ? FilterOperator.IsNull : FilterOperator.Equals);InvokeAsync(() => ApplyFilter(column, true));})" />
                                                         }
                                                         else if (PropertyAccess.IsNumeric(column.FilterPropertyType))
                                                         {

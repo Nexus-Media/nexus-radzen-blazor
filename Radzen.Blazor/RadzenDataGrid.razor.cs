@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -65,6 +66,17 @@ namespace Radzen.Blazor
 
         List<TItem> virtualDataItems = new List<TItem>();
 
+        internal async Task RefreshDataAsync()
+        {
+            lastLoadDataArgs = null;
+
+            if (Virtualize != null)
+            {
+                await Virtualize.RefreshDataAsync();
+            }
+        }
+
+        string lastLoadDataArgs;
         private async ValueTask<Microsoft.AspNetCore.Components.Web.Virtualization.ItemsProviderResult<TItem>> LoadItems(Microsoft.AspNetCore.Components.Web.Virtualization.ItemsProviderRequest request)
         {
             var view = AllowPaging ? PagedView : View;
@@ -74,9 +86,15 @@ namespace Radzen.Blazor
             {
                 top = PageSize;
             }
+            var loadDataArgs = $"{request.StartIndex}{top}{GetOrderBy()}{allColumns.ToList().ToFilterString<TItem>()}";
 
-            await InvokeLoadData(request.StartIndex, top);
-            
+            if (lastLoadDataArgs != loadDataArgs)
+            {
+                lastLoadDataArgs = loadDataArgs;
+
+                await InvokeLoadData(request.StartIndex, top);
+            }
+
             var totalItemsCount = LoadData.HasDelegate ? Count : view.Count();
 
             virtualDataItems = (LoadData.HasDelegate ? Data : itemToInsert != null ? (new[] { itemToInsert }).Concat(view.Skip(request.StartIndex).Take(top)) : view.Skip(request.StartIndex).Take(top))?.ToList();
@@ -97,12 +115,12 @@ namespace Radzen.Blazor
             var query = view.AsQueryable().OrderBy(string.Join(',', Groups.Select(g => $"np({g.Property})")));
             _groupedPagedView = query.GroupByMany(Groups.Select(g => $"np({g.Property})").ToArray()).ToList();
 
-            var totalItemsCount = _groupedPagedView.Count();
+            var totalItemsCount = await Task.FromResult(_groupedPagedView.Count());
 
             return new Microsoft.AspNetCore.Components.Web.Virtualization.ItemsProviderResult<GroupResult>(_groupedPagedView.Skip(request.StartIndex).Take(top), totalItemsCount);
         }
 #endif
-       
+
         RenderFragment DrawRows(IList<RadzenDataGridColumn<TItem>> visibleColumns)
         {
             return new RenderFragment(builder =>
@@ -326,7 +344,9 @@ namespace Radzen.Blazor
             var inputValue = await JSRuntime.InvokeAsync<string>("Radzen.getInputValue", getFilterInputId(column));
             if (!object.Equals(column.GetFilterValue(), inputValue))
             {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 await InvokeAsync(() => { OnFilter(new ChangeEventArgs() { Value = inputValue }, column); });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
 
@@ -450,7 +470,10 @@ namespace Radzen.Blazor
             selectedColumns = columnsList;
         }
 
-		public void UpdatePickableColumns()
+        /// <summary>
+        /// Updates pickable columns.
+        /// </summary>
+        public void UpdatePickableColumns()
 		{
 			if (allColumns.Any(c => c.Pickable))
 			{
@@ -539,7 +562,7 @@ namespace Radzen.Blazor
                 Action<object> action;
                 if (force)
                 {
-                    action = args => OnFilter(new ChangeEventArgs() { Value = args }, column, isFirst);
+                    action = args => InvokeAsync(() => OnFilter(new ChangeEventArgs() { Value = args }, column, isFirst));
                 }
                 else
                 {
@@ -619,7 +642,7 @@ namespace Radzen.Blazor
                         Data = null;
                     }
 
-                    await InvokeAsync(Reload);
+                    await InvokeAsync(ReloadInternal);
 
                     if (IsVirtualizationAllowed())
                     {
@@ -670,7 +693,7 @@ namespace Radzen.Blazor
                         Data = null;
                     }
 
-                    InvokeAsync(Reload);
+                    InvokeAsync(ReloadInternal);
                 }
             }
         }
@@ -735,7 +758,12 @@ namespace Radzen.Blazor
                 Data = null;
             }
 
-            await InvokeAsync(Reload);
+            if (closePopup)
+            {
+                await JSRuntime.InvokeVoidAsync("Radzen.closeAllPopups", $"{PopupID}{column.GetFilterProperty()}");
+            }
+
+            await InvokeAsync(ReloadInternal);
         }
 
         /// <summary>
@@ -755,6 +783,11 @@ namespace Radzen.Blazor
                 }
             }
             await OnFilter(new ChangeEventArgs() { Value = column.GetFilterValue() }, column, true);
+
+            if (closePopup)
+            {
+                await JSRuntime.InvokeVoidAsync("Radzen.closeAllPopups", $"{PopupID}{column.GetFilterProperty()}");
+            }
         }
 
         internal IReadOnlyDictionary<string, object> CellAttributes(TItem item, RadzenDataGridColumn<TItem> column)
@@ -840,6 +873,12 @@ namespace Radzen.Blazor
         /// <value>The edit mode.</value>
         [Parameter]
         public DataGridEditMode EditMode { get; set; } = DataGridEditMode.Multiple;
+
+        /// <summary>
+        /// Gets or set the filter icon to use.
+        /// </summary>
+        [Parameter]
+        public string FilterIcon { get; set; } = "filter_alt";
 
         /// <summary>
         /// Gets or sets the filter text.
@@ -1208,14 +1247,14 @@ namespace Radzen.Blazor
         [Parameter]
         public string GroupPanelText { get; set; } = "Drag a column header here and drop it to group by that column";
 
-        internal string getColumnResizerId(int columnIndex)
+        internal string getColumnUniqueId(int columnIndex)
         {
             return string.Join("", $"{UniqueID}".Split('.')) + columnIndex;
         }
 
         internal async Task StartColumnResize(MouseEventArgs args, int columnIndex)
         {
-            await JSRuntime.InvokeVoidAsync("Radzen.startColumnResize", getColumnResizerId(columnIndex), Reference, columnIndex, args.ClientX);
+            await JSRuntime.InvokeVoidAsync("Radzen.startColumnResize", getColumnUniqueId(columnIndex), Reference, columnIndex, args.ClientX);
         }
 
         int? indexOfColumnToReoder;
@@ -1223,7 +1262,7 @@ namespace Radzen.Blazor
         internal async Task StartColumnReorder(MouseEventArgs args, int columnIndex)
         {
             indexOfColumnToReoder = columnIndex;
-            await JSRuntime.InvokeVoidAsync("Radzen.startColumnReorder", getColumnResizerId(columnIndex));
+            await JSRuntime.InvokeVoidAsync("Radzen.startColumnReorder", getColumnUniqueId(columnIndex));
         }
 
         internal async Task EndColumnReorder(MouseEventArgs args, int columnIndex)
@@ -1586,6 +1625,13 @@ namespace Radzen.Blazor
         public Action<DataGridRenderEventArgs<TItem>> Render { get; set; }
 
         /// <summary>
+        /// Gets or sets the load settings callback.
+        /// </summary>
+        /// <value>The load settings callback.</value>
+        [Parameter]
+        public Action<DataGridLoadSettingsEventArgs> LoadSettings { get; set; }
+
+        /// <summary>
         /// Called when data is changed.
         /// </summary>
         protected override void OnDataChanged()
@@ -1652,6 +1698,14 @@ namespace Radzen.Blazor
         /// </summary>
         public async override Task Reload()
         {
+#if NET5_0_OR_GREATER
+            lastLoadDataArgs = null;
+#endif
+            await ReloadInternal();
+        }
+
+        internal async Task ReloadInternal()
+        {
             _groupedPagedView = null;
             _view = null;
 
@@ -1662,14 +1716,14 @@ namespace Radzen.Blazor
 #if NET5_0_OR_GREATER
             if (AllowVirtualization)
             {
-                if(!LoadData.HasDelegate)
+                if (!LoadData.HasDelegate)
                 {
-                    if(virtualize != null)
+                    if (virtualize != null)
                     {
                         await virtualize.RefreshDataAsync();
                     }
 
-                    if(groupVirtualize != null)
+                    if (groupVirtualize != null)
                     {
                         await groupVirtualize.RefreshDataAsync();
                     }
@@ -1680,7 +1734,10 @@ namespace Radzen.Blazor
                 }
             }
 #endif
-            await InvokeLoadData(skip, PageSize);
+            if (!IsVirtualizationAllowed())
+            {
+                await InvokeLoadData(skip, PageSize);
+            }
 
             CalculatePager();
 
@@ -1693,13 +1750,12 @@ namespace Radzen.Blazor
 #if NET5_0_OR_GREATER
                 if (AllowVirtualization)
                 {
-                    if(virtualize != null)
+                    if (virtualize != null)
                     {
-                        await virtualize.RefreshDataAsync();
                         await virtualize.RefreshDataAsync();
                     }
 
-                    if(groupVirtualize != null)
+                    if (groupVirtualize != null)
                     {
                         await groupVirtualize.RefreshDataAsync();
                     }
@@ -1958,9 +2014,9 @@ namespace Radzen.Blazor
         {
             if (firstRender && Visible && (LoadData.HasDelegate && Data == null) && IsVirtualizationAllowed())
             {
-                await InvokeLoadData(skip, PageSize);
+                Data = Enumerable.Empty<TItem>().Append(default(TItem));
             }
-            else
+            else if(settings == null)
             {
                 await base.ReloadOnFirstRender();
             }
@@ -1969,20 +2025,33 @@ namespace Radzen.Blazor
         /// <inheritdoc />
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            if (LoadSettings != null)
+            {
+                var args = new Radzen.DataGridLoadSettingsEventArgs() { Settings = settings };
+
+                if (LoadSettings != null)
+                {
+                    LoadSettings(args);
+                }
+
+                if (args.Settings != settings)
+                {
+                    settings = args.Settings;
+                }
+            }
+
             await base.OnAfterRenderAsync(firstRender);
 
             if (Visible)
             {
                 if (settings != null)
                 {
-                    await LoadSettings(settings);
+                    await LoadSettingsInternal(settings);
                 }
-
-                var args = new Radzen.DataGridRenderEventArgs<TItem>() { Grid = this, FirstRender = firstRender };
 
                 if (Render != null)
                 {
-                    Render(args);
+                    Render(new Radzen.DataGridRenderEventArgs<TItem>() { Grid = this, FirstRender = firstRender });
                 }
             }
 
@@ -2632,7 +2701,7 @@ namespace Radzen.Blazor
         {
             if(indexOfColumnToReoder != null && AllowGrouping)
             {
-                var functionName = $"Radzen['{getColumnResizerId(indexOfColumnToReoder.Value)}end']";
+                var functionName = $"Radzen['{getColumnUniqueId(indexOfColumnToReoder.Value)}end']";
                 await JSRuntime.InvokeVoidAsync("eval", $"{functionName} && {functionName}()");
 
                 RadzenDataGridColumn<TItem> column;
@@ -2719,7 +2788,7 @@ namespace Radzen.Blazor
             }
 
             SaveSettings();
-            InvokeAsync(Reload);
+            InvokeAsync(ReloadInternal);
         }
 
         /// <summary>
@@ -2746,11 +2815,11 @@ namespace Radzen.Blazor
 
             if (IsVirtualizationAllowed() && LoadData.HasDelegate)
             {
-                Debounce(() => InvokeAsync(Reload), 500);
+                Debounce(() => InvokeAsync(ReloadInternal), 500);
             }
             else
             {
-                InvokeAsync(Reload);
+                InvokeAsync(ReloadInternal);
             }
         }
 
@@ -2778,7 +2847,7 @@ namespace Radzen.Blazor
                 Data = null;
             }
 
-            InvokeAsync(Reload);
+            InvokeAsync(ReloadInternal);
         }
 
         /// <inheritdoc />
@@ -2874,8 +2943,9 @@ namespace Radzen.Blazor
             {
                 settings = new DataGridSettings()
                 {
-                    Columns = ColumnsCollection.ToList().Where(c => !string.IsNullOrEmpty(c.Property)).Select(c => new DataGridColumnSettings()
+                    Columns = ColumnsCollection.ToList().Where(c => !string.IsNullOrEmpty(c.Property) || !string.IsNullOrEmpty(c.UniqueID)).Select(c => new DataGridColumnSettings()
                     {
+                        UniqueID = c.UniqueID,
                         Property = c.Property,
                         Width = c.GetWidth(),
                         Visible = c.GetVisible(),
@@ -2900,7 +2970,7 @@ namespace Radzen.Blazor
         /// <summary>
         /// Load DataGrid settings saved from GetSettings() method.
         /// </summary>
-        internal async Task LoadSettings(DataGridSettings settings)
+        internal async Task LoadSettingsInternal(DataGridSettings settings)
         {
             if (SettingsChanged.HasDelegate)
             {
@@ -2916,7 +2986,8 @@ namespace Radzen.Blazor
                 {
                     foreach (var column in settings.Columns.OrderBy(c => c.SortIndex))
                     {
-                        var gridColumn = ColumnsCollection.Where(c => c.Property == column.Property).FirstOrDefault();
+                        var gridColumn = ColumnsCollection.Where(c => !string.IsNullOrEmpty(column.Property) && c.Property == column.Property).FirstOrDefault() ??
+                                ColumnsCollection.Where(c => !string.IsNullOrEmpty(column.UniqueID) && c.UniqueID == column.UniqueID).FirstOrDefault();
                         if (gridColumn != null)
                         {
                             // Sorting
@@ -2930,7 +3001,8 @@ namespace Radzen.Blazor
 
                     foreach (var column in settings.Columns)
                     {
-                        var gridColumn = ColumnsCollection.Where(c => c.Property == column.Property).FirstOrDefault();
+                        var gridColumn = ColumnsCollection.Where(c => !string.IsNullOrEmpty(column.Property) && c.Property == column.Property).FirstOrDefault() ??
+                                ColumnsCollection.Where(c => !string.IsNullOrEmpty(column.UniqueID) && c.UniqueID == column.UniqueID).FirstOrDefault();
                         if (gridColumn != null)
                         {
                             // Visibility
@@ -3003,17 +3075,17 @@ namespace Radzen.Blazor
                     shouldUpdateState = true;
                 }
 
-                if (settings.PageSize != null && settings.PageSize != PageSize)
+                if (settings.PageSize != null && settings.PageSize != GetPageSize())
                 {
-                    PageSize = settings.PageSize.Value;
+                    SetPageSize(settings.PageSize.Value);
                     shouldUpdateState = true;
                 }
 
                 if (shouldUpdateState)
                 {
-                    skip = CurrentPage * PageSize;
+                    skip = CurrentPage * GetPageSize();
 
-                    if (hasFilter ? skip <= View.Count() : true)
+                    if (hasFilter && View.Any() ? skip <= View.Count() : true)
                     {
                         CalculatePager();
                         UpdateColumnsOrder();
@@ -3067,6 +3139,21 @@ namespace Radzen.Blazor
                 else if (type.IsEnum)
                 {
                     return element.GetInt32();
+                }
+                else if (!typeof(string).IsAssignableFrom(type) && (typeof(IEnumerable<>).IsAssignableFrom(type) || typeof(IEnumerable).IsAssignableFrom(type)))
+                {
+                    var valueType = type.GetGenericArguments().Any() ? type.GetGenericArguments().FirstOrDefault() : typeof(object);
+                    var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(valueType));
+
+                    if (element.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var v in element.EnumerateArray())
+                        {
+                            list.Add(GetFilterValue(v, valueType));
+                        }
+                    }
+
+                    return list;
                 }
                 else
                 {
