@@ -101,7 +101,7 @@ namespace Radzen.Blazor
             {
                 top = PageSize;
             }
-            var loadDataArgs = $"{request.StartIndex}|{top}{GetOrderBy()}{allColumns.ToList().ToFilterString<TItem>()}";
+            var loadDataArgs = $"{request.StartIndex}|{top}{GetOrderBy()}{allColumns.ToList().ToFiltefrString<TItem>()}";
 
             if (lastLoadDataArgs != loadDataArgs)
             {
