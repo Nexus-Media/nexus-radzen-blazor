@@ -127,8 +127,8 @@ namespace Radzen.Blazor
             }
 
             var view = AllowPaging ? PagedView : View;
-            var query = view.AsQueryable().OrderBy(string.Join(',', Groups.Select(g => $"np({g.Property})")));
-            _groupedPagedView = query.GroupByMany(Groups.Select(g => $"np({g.Property})").ToArray()).ToList();
+            var query = view.AsQueryable().OrderBy(string.Join(',', Groups.Select(g => $"{(typeof(TItem) == typeof(object) ? g.Property : "np(" + g.Property + ")")}")));
+            _groupedPagedView = query.GroupByMany(Groups.Select(g => $"{(typeof(TItem) == typeof(object) ? g.Property : "np(" + g.Property + ")")}").ToArray()).ToList();
 
             var totalItemsCount = await Task.FromResult(_groupedPagedView.Count());
 
@@ -290,9 +290,9 @@ namespace Radzen.Blazor
                 if (_groupedPagedView == null)
                 {
                     var orderBy = GetOrderBy();
-                    var query = Groups.Count(g => g.SortOrder == null) == Groups.Count || !string.IsNullOrEmpty(orderBy) ? View : View.OrderBy(string.Join(',', Groups.Select(g => $"np({g.Property}) {(g.SortOrder == null ? "" : g.SortOrder == SortOrder.Ascending ? " asc" : " desc")}")));
+                    var query = Groups.Count(g => g.SortOrder == null) == Groups.Count || !string.IsNullOrEmpty(orderBy) ? View : View.OrderBy(string.Join(',', Groups.Select(g => $"{(typeof(TItem) == typeof(object) ? g.Property : "np(" + g.Property + ")")} {(g.SortOrder == null ? "" : g.SortOrder == SortOrder.Ascending ? " asc" : " desc")}")));
                     var v = (AllowPaging && !LoadData.HasDelegate ? query.Skip(skip).Take(PageSize) : query).ToList().AsQueryable();
-                    _groupedPagedView = v.GroupByMany(Groups.Select(g => $"np({g.Property})").ToArray()).ToList();
+                    _groupedPagedView = v.GroupByMany(Groups.Select(g => $"{(typeof(TItem) == typeof(object) ? g.Property : "np(" + g.Property + ")")}").ToArray()).ToList();
                 }
                 return _groupedPagedView;
             }
@@ -1649,6 +1649,13 @@ namespace Radzen.Blazor
         public Action<DataGridRenderEventArgs<TItem>> Render { get; set; }
 
         /// <summary>
+        /// Gets or sets the render async callback.
+        /// </summary>
+        /// <value>The render async callback.</value>
+        [Parameter]
+        public Func<DataGridRenderEventArgs<TItem>, Task> RenderAsync { get; set; }
+
+        /// <summary>
         /// Gets or sets the load settings callback.
         /// </summary>
         /// <value>The load settings callback.</value>
@@ -2076,6 +2083,11 @@ namespace Radzen.Blazor
                 if (Render != null)
                 {
                     Render(new Radzen.DataGridRenderEventArgs<TItem>() { Grid = this, FirstRender = firstRender });
+                }
+
+                if (RenderAsync != null)
+                {
+                    await RenderAsync(new Radzen.DataGridRenderEventArgs<TItem>() { Grid = this, FirstRender = firstRender });
                 }
             }
 
