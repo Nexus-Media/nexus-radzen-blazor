@@ -14,7 +14,7 @@
         <div class="rz-helper-hidden-accessible">
             <input disabled="@Disabled" aria-haspopup="listbox" readonly="" type="text" tabindex="-1"
                    name="@Name" value="@(internalValue != null ? internalValue : "")"
-                   aria-label="@(!Multiple && internalValue != null ? internalValue : "")" />
+                   aria-label="@(!Multiple && internalValue != null ? internalValue : "")" @attributes="InputAttributes"/>
         </div>
 
         @if (ValueTemplate != null && selectedItem != null)
@@ -103,7 +103,7 @@
             @if (AllowFiltering && !Multiple)
             {
                 <div class="rz-dropdown-filter-container">
-                    <input id="@SearchID" @ref="@search" tabindex="@(Disabled ? "-1" : $"{TabIndex}")" class="rz-dropdown-filter rz-inputtext   " autocomplete="off" type="text"
+                    <input id="@SearchID" @ref="@search" tabindex="@(Disabled ? "-1" : $"{TabIndex}")" placeholder="@FilterPlaceholder" class="rz-dropdown-filter rz-inputtext   " autocomplete="off" type="text"
                            @onchange="@((ChangeEventArgs args) => OnFilter(args))" @onkeydown="@((args) => OnFilterKeyPress(args))" value="@searchText"
                             @oninput=@(args => { searchText = $"{args.Value}"; SearchTextChanged.InvokeAsync(searchText);}) />
                     <span class="rz-dropdown-filter-icon rzi rzi-search"></span>
@@ -143,12 +143,19 @@
                 </div>
             }
             <div class="@(Multiple ? "rz-multiselect-items-wrapper" : "rz-dropdown-items-wrapper")" style="@PopupStyle">
-                <ul @ref="list" class="@(Multiple ? "rz-multiselect-items rz-multiselect-list" : "rz-dropdown-items rz-dropdown-list")" role="listbox">
-                    @if (View != null)
-                    {
-                        @RenderItems()
-                    }
-                </ul>
+                @if (Data != null && Data.Cast<object>().Any())
+                {
+                    <ul @ref="list" class="@(Multiple ? "rz-multiselect-items rz-multiselect-list" : "rz-dropdown-items rz-dropdown-list")" role="listbox">
+                        @if (View != null)
+                        {
+                            @RenderItems()
+                        }
+                    </ul>   
+                }
+                else
+                {
+                    @EmptyTemplate
+                }
             </div>
         </div>
         @if (AllowClear && (!Multiple && HasValue || Multiple && selectedItems.Count > 0))

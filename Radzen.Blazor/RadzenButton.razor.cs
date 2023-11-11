@@ -15,7 +15,7 @@ namespace Radzen.Blazor
     /// </example>
     public partial class RadzenButton : RadzenComponent
     {
-        private string getButtonSize()
+        internal string getButtonSize()
         {
             return Size == ButtonSize.Medium ? "md" : Size == ButtonSize.Large ? "lg" : Size == ButtonSize.Small ? "sm" : "xs";
         }
@@ -40,6 +40,13 @@ namespace Radzen.Blazor
         /// <value>The icon.</value>
         [Parameter]
         public string Icon { get; set; }
+
+        /// <summary>
+        /// Gets or sets the icon color.
+        /// </summary>
+        /// <value>The icon color.</value>
+        [Parameter]
+        public string IconColor { get; set; }
 
         /// <summary>
         /// Gets or sets the image.
@@ -123,7 +130,7 @@ namespace Radzen.Blazor
         /// Handles the <see cref="E:Click" /> event.
         /// </summary>
         /// <param name="args">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
-        public async Task OnClick(MouseEventArgs args)
+        public virtual async Task OnClick(MouseEventArgs args)
         {
             if (clicking)
             {

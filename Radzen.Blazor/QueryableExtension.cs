@@ -643,6 +643,11 @@ namespace Radzen
 
             var columnFilterOperator = !second ? column.GetFilterOperator() : column.GetSecondFilterOperator();
 
+            if (columnFilterOperator == FilterOperator.Custom)
+            {
+                return "";
+            }
+
             var linqOperator = LinqFilterOperators[columnFilterOperator];
             if (linqOperator == null)
             {

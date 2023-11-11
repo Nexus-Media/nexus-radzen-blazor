@@ -47,11 +47,46 @@ namespace Radzen.Blazor
         public bool Collapsed { get; set; }
 
         /// <summary>
+        /// Gets or sets the title attribute of the expand button.
+        /// </summary>
+        /// <value>The title attribute value of the expand button.</value>
+        [Parameter]
+        public string ExpandTitle { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the title attribute of the collapse button.
+        /// </summary>
+        /// <value>The title attribute value of the collapse button.</value>
+        [Parameter]
+        public string CollapseTitle { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the aria-label attribute of the expand button.
+        /// </summary>
+        /// <value>The aria-label attribute value of the expand button.</value>
+        [Parameter]
+        public string ExpandAriaLabel { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the aria-label attribute of the collapse button.
+        /// </summary>
+        /// <value>The aria-label attribute value of the collapse button.</value>
+        [Parameter]
+        public string CollapseAriaLabel { get; set; }
+        
+        /// <summary>
         /// Gets or sets the icon.
         /// </summary>
         /// <value>The icon.</value>
         [Parameter]
         public string Icon { get; set; }
+
+        /// <summary>
+        /// Gets or sets the icon color.
+        /// </summary>
+        /// <value>The icon color.</value>
+        [Parameter]
+        public string IconColor { get; set; }
 
         /// <summary>
         /// Gets or sets the text.
@@ -122,6 +157,24 @@ namespace Radzen.Blazor
             collapsed = Collapsed;
         }
 
+        private string TitleAttribute()
+        {
+            if (collapsed)
+            {
+                return string.IsNullOrWhiteSpace(ExpandTitle) ? "Expand" : ExpandTitle;
+            }
+            return string.IsNullOrWhiteSpace(CollapseTitle) ? "Collapse" : CollapseTitle;
+        }
+        
+        private string AriaLabelAttribute()
+        {
+            if (collapsed)
+            {
+                return string.IsNullOrWhiteSpace(ExpandAriaLabel) ? "Expand" : ExpandAriaLabel;  
+            }
+            return string.IsNullOrWhiteSpace(CollapseAriaLabel) ? "Collapse" : CollapseAriaLabel;
+        }
+        
         /// <inheritdoc />
         public override async Task SetParametersAsync(ParameterView parameters)
         {

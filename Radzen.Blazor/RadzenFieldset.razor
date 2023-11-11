@@ -9,7 +9,8 @@
 
             @if (AllowCollapse)
             {
-                <a href="javascript:void(0)" aria-controls="rz-fieldset-0-content" aria-expanded="false" @onclick=@Toggle>
+                <a title="@TitleAttribute()" aria-label="@AriaLabelAttribute()" href="javascript:void(0)"
+                   aria-controls="rz-fieldset-0-content" aria-expanded="false" @onclick=@Toggle>
                 @if (collapsed)
                 {
                     <span class="rz-fieldset-toggler rzi rzi-w rzi-plus"></span>
@@ -34,7 +35,7 @@
             {
                 @if (!string.IsNullOrEmpty(Icon))
                 {
-                    <i class="rzi">@((MarkupString)Icon)</i><span>@Text</span>
+                    <i class="rzi" style="@(!string.IsNullOrEmpty(IconColor) ? $"color:{IconColor}" : null)">@((MarkupString)Icon)</i><span>@Text</span>
                 }
                 else
                 {

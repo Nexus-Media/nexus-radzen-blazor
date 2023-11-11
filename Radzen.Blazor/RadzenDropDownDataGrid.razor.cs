@@ -22,6 +22,12 @@ namespace Radzen.Blazor
     public partial class RadzenDropDownDataGrid<TValue> : DropDownBase<TValue>
     {
         /// <summary>
+        /// Specifies additional custom attributes that will be rendered by the input.
+        /// </summary>
+        /// <value>The attributes.</value>
+        public IReadOnlyDictionary<string, object> InputAttributes { get; set; }
+
+        /// <summary>
         /// Gets or sets the row render callback. Use it to set row attributes.
         /// </summary>
         /// <value>The row render callback.</value>
@@ -205,6 +211,66 @@ namespace Radzen.Blazor
         public string PagingSummaryFormat { get; set; } = "Page {0} of {1} ({2} items)";
 
         /// <summary>
+        /// Gets or sets the pager's first page button's title attribute.
+        /// </summary>
+        [Parameter]
+        public string FirstPageTitle { get; set; } = "First page.";
+
+        /// <summary>
+        /// Gets or sets the pager's first page button's aria-label attribute.
+        /// </summary>
+        [Parameter]
+        public string FirstPageAriaLabel { get; set; } = "Go to first page.";
+
+        /// <summary>
+        /// Gets or sets the pager's previous page button's title attribute.
+        /// </summary>
+        [Parameter]
+        public string PrevPageTitle { get; set; } = "Previous page";
+
+        /// <summary>
+        /// Gets or sets the pager's previous page button's aria-label attribute.
+        /// </summary>
+        [Parameter]
+        public string PrevPageAriaLabel { get; set; } = "Go to previous page.";
+
+        /// <summary>
+        /// Gets or sets the pager's last page button's title attribute.
+        /// </summary>
+        [Parameter]
+        public string LastPageTitle { get; set; } = "Last page";
+
+        /// <summary>
+        /// Gets or sets the pager's last page button's aria-label attribute.
+        /// </summary>
+        [Parameter]
+        public string LastPageAriaLabel { get; set; } = "Go to last page.";
+
+        /// <summary>
+        /// Gets or sets the pager's next page button's title attribute.
+        /// </summary>
+        [Parameter]
+        public string NextPageTitle { get; set; } = "Next page";
+
+        /// <summary>
+        /// Gets or sets the pager's next page button's aria-label attribute.
+        /// </summary>
+        [Parameter]
+        public string NextPageAriaLabel { get; set; } = "Go to next page.";
+        
+        /// <summary>
+        /// Gets or sets the pager's numeric page number buttons' title attributes.
+        /// </summary>
+        [Parameter]
+        public string PageTitleFormat { get; set; } = "Page {0}";
+        
+        /// <summary>
+        /// Gets or sets the pager's numeric page number buttons' aria-label attributes.
+        /// </summary>
+        [Parameter]
+        public string PageAriaLabelFormat { get; set; } = "Go to page {0}.";
+        
+        /// <summary>
         /// Gets or sets the empty text.
         /// </summary>
         /// <value>The empty text.</value>
@@ -368,7 +434,7 @@ namespace Radzen.Blazor
                 {
                     string filterCaseSensitivityOperator = FilterCaseSensitivity == FilterCaseSensitivity.CaseInsensitive ? ".ToLower()" : "";
 
-                    if (AllowFilteringByAllStringColumns)
+                    if (AllowFilteringByAllStringColumns && grid != null)
                     {
                         if (AllowFilteringByWord)
                         {
@@ -530,43 +596,47 @@ namespace Radzen.Blazor
             if (FieldIdentifier.FieldName != null) { EditContext?.NotifyFieldChanged(FieldIdentifier); }
             await Change.InvokeAsync(internalValue);
 
+            if (!Multiple)
+            {
+                await grid.SelectRow(null);
+            }
+
             await grid.Reload();
 
             StateHasChanged();
         }
 
-
         string previousSearch;
 
-        /// <summary>
-        /// Handles the <see cref="E:FilterKeyPress" /> event.
-        /// </summary>
-        /// <param name="args">The <see cref="KeyboardEventArgs"/> instance containing the event data.</param>
-        protected override async Task OnFilterKeyPress(KeyboardEventArgs args)
+        /// <inheritdoc />
+        protected override async Task HandleKeyPress(KeyboardEventArgs args, bool isFilter)
         {
             var items = (LoadData.HasDelegate ? Data != null ? Data : Enumerable.Empty<object>() : (pagedData != null ? pagedData : Enumerable.Empty<object>())).OfType<object>().ToList();
 
             var key = args.Code != null ? args.Code : args.Key;
 
-            if (key == "ArrowDown" || key == "ArrowUp")
+            if (!args.AltKey && (key == "ArrowDown" || key == "ArrowLeft" || key == "ArrowUp" || key == "ArrowRight"))
             {
                 try
                 {
-                    if (key == "ArrowDown" && selectedIndex < items.Count - 1)
+                    var currentViewIndex = Multiple ? selectedIndex : items.IndexOf(selectedItem);
+
+                    var newSelectedIndex = await JSRuntime.InvokeAsync<int>("Radzen.focusTableRow", grid.UniqueID, key == "ArrowDown" || key == "ArrowRight", currentViewIndex);
+
+                    var item = items.ElementAtOrDefault(newSelectedIndex);
+
+                    if (!Multiple)
                     {
-                        selectedIndex++;
+                        if (newSelectedIndex != currentViewIndex && newSelectedIndex >= 0 && newSelectedIndex <= items.Count() - 1)
+                        {
+                            selectedIndex = newSelectedIndex;
+                            await grid.OnRowSelect(item, false);
+                            await OnSelectItem(item, true);
+                        }
                     }
-
-                    if (key == "ArrowUp" && selectedIndex > 0)
+                    else
                     {
-                        selectedIndex--;
-                    }
-
-                    var item = items.ElementAtOrDefault(selectedIndex);
-
-                    if (item != null && (!Multiple ? selectedItem != item : true))
-                    {
-                        await grid.OnRowSelect(item, false);
+                        selectedIndex = await JSRuntime.InvokeAsync<int>("Radzen.focusTableRow", grid.UniqueID, key == "ArrowDown", currentViewIndex);
                     }
                 }
                 catch (Exception)
@@ -574,19 +644,35 @@ namespace Radzen.Blazor
                     //
                 }
             }
-            else if (key == "Enter")
+            else if (Multiple && key == "Enter")
             {
-                var item = items.ElementAtOrDefault(selectedIndex);
-                if (item != null && (!Multiple ? selectedItem != item : true))
+                if (selectedIndex >= 0 && selectedIndex <= items.Count() - 1)
                 {
-                    await OnRowSelect(item);
+                    await OnSelectItem(items.ElementAt(selectedIndex), true);
                 }
             }
-            else if (key == "Escape")
+            else if (key == "Enter" || (args.AltKey && key == "ArrowDown"))
+            {
+                await OpenPopup(key, isFilter);
+            }
+            else if (key == "Escape" || key == "Tab")
             {
                 await JSRuntime.InvokeVoidAsync("Radzen.closePopup", PopupID);
             }
-            else if(FilterAsYouType)
+            else if (key == "Delete" && AllowClear)
+            {
+                if (!Multiple && selectedItem != null)
+                {
+                    selectedIndex = -1;
+                    await OnSelectItem(null, true);
+                }
+
+                if (AllowFiltering && isFilter)
+                {
+                    Debounce(DebounceFilter, FilterDelay);
+                }
+            }
+            else if (AllowFiltering && isFilter && FilterAsYouType)
             {
                 selectedIndex = -1;
                 Debounce(DebounceFilter, FilterDelay);
@@ -629,7 +715,14 @@ namespace Radzen.Blazor
                 }
                 else
                 {
-                    await grid.Reload();
+                    if(grid.LoadData.HasDelegate)
+                    {
+                        await grid.InvokeLoadData(0, PageSize);
+                    }
+                    else
+                    {
+                        await grid.Reload();
+                    }
                 }
             }
 #endif

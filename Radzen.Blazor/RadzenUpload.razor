@@ -9,11 +9,11 @@
 <div @ref="@Element" style="@Style" @attributes="Attributes" class="@GetCssClass()" id="@GetId()">
     <div class="rz-fileupload-buttonbar">
         <span class="@ChooseClassList">
-            <input id="@Id" @ref="@fileUpload" type="file" multiple="@Multiple" accept="@Accept" disabled="@Disabled" 
+            <input id="@Id" @ref="@fileUpload" @attributes="InputAttributes" type="file" multiple="@Multiple" accept="@Accept" disabled="@Disabled" 
                    onchange="Radzen.uploadInputChange(event, '@Url', @Auto.ToString().ToLower(), @Multiple.ToString().ToLower(), true, '@ParameterName')" />
             @if (!string.IsNullOrEmpty(Icon))
             {
-            <i class="rzi">@((MarkupString)Icon)</i>
+            <i class="rzi" style="@(!string.IsNullOrEmpty(IconColor) ? $"color:{IconColor}" : null)">@((MarkupString)Icon)</i>
             }
             <span class="rz-button-text">@ChooseText</span>
         </span>
