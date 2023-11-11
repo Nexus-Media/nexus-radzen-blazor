@@ -101,7 +101,10 @@ namespace Radzen.Blazor
             {
                 top = PageSize;
             }
-            var loadDataArgs = $"{request.StartIndex}|{top}{GetOrderBy()}{allColumns.ToList().ToFiltefrString<TItem>()}";
+
+            var filter = isOData == true ? 
+                    allColumns.ToList().ToODataFilterString<TItem>() : allColumns.ToList().ToFilterString<TItem>();
+            var loadDataArgs = $"{request.StartIndex}|{top}{GetOrderBy()}{filter}";
 
             if (lastLoadDataArgs != loadDataArgs)
             {
@@ -308,8 +311,10 @@ namespace Radzen.Blazor
             {
                 await Group.InvokeAsync(new DataGridColumnGroupEventArgs<TItem>() { Column = column, GroupDescriptor = null });
             }
+
             if (IsVirtualizationAllowed())
             {
+                StateHasChanged();
                 await InvokeAsync(Reload);
             }
         }
@@ -323,7 +328,72 @@ namespace Radzen.Blazor
 
         internal string getFrozenColumnClass(RadzenDataGridColumn<TItem> column, IList<RadzenDataGridColumn<TItem>> visibleColumns)
         {
-            return column.IsFrozen() ? "rz-frozen-cell" : "";
+            if (!column.IsFrozen())
+            {
+                return "";
+            }
+
+            // Frozen columns are grouped to:
+            // - left frozen columns: all of the frozen columns marked by FrozenColumnPosition.Left from left till the first not frozen column
+            // - left inner frozen columns: any frozen column marked by FrozenColumnPosition.Left which are not "left frozen columns"
+            // - right frozen columns: all of the frozen columns marked by FrozenColumnPosition.Right from right till the first not frozen column
+            // - right inner frozen columns: any frozen column marked by FrozenColumnPosition.Right which are not "right frozen columns"
+
+            // According to https://github.com/w3c/csswg-drafts/issues/1656 stucked columns cannot be detected by pseudo classes, so the stucked state had to be managed somehow.
+
+            // A good solution for the problem, might be:
+            // https://stackoverflow.com/questions/25308823/targeting-positionsticky-elements-that-are-currently-in-a-stuck-state
+            // https://codepen.io/TomAnthony/pen/qBqgErK
+            // It seemed too complicated, so left + right frozen columns problme has been solved by following css classes:
+            // - rz-frozen-cell-left            all of the "left frozen columns" get this class 
+            // - rz-frozen-cell-left-end        the most right column of the "left frozen columns" get this class to draw the shadow for it
+            // - rz-frozen-cell-left-inner      all of the "left inner frozen columns" get this class
+            // - rz-frozen-cell-right           all of the "right frozen columns" get this class
+            // - rz-frozen-cell-right-end       the most left column of the "right frozen columns" get this class to draw the shadow for it
+            // - rz-frozen-cell-right-inner     all of the "right inner frozen columns" get this class
+
+            if (column.FrozenPosition == FrozenColumnPosition.Left)
+            {
+                for(var i=0; i<ColumnsCollection.Count; i++)
+                {
+                    if (ColumnsCollection[i] == column)
+                    {
+                        if (i + 1 < ColumnsCollection.Count && (!ColumnsCollection[i + 1].IsFrozen() || ColumnsCollection[i + 1].FrozenPosition == FrozenColumnPosition.Right))
+                        {
+                            return "rz-frozen-cell rz-frozen-cell-left rz-frozen-cell-left-end";
+                        }
+                        else
+                        {
+                            return "rz-frozen-cell rz-frozen-cell-left";
+                        }
+                    }
+                    if(!ColumnsCollection[i].IsFrozen())
+                    {
+                        break;
+                    }
+                }
+                return "rz-frozen-cell rz-frozen-cell-left-inner";
+            }
+
+            for (var i = ColumnsCollection.Count-1; i >=0; i--)
+            {
+                if (ColumnsCollection[i] == column)
+                {
+                    if (i - 1 >=0 && (!ColumnsCollection[i-1].IsFrozen() || ColumnsCollection[i-1].FrozenPosition == FrozenColumnPosition.Left))
+                    {
+                        return "rz-frozen-cell rz-frozen-cell-right rz-frozen-cell-right-end";
+                    }
+                    else
+                    {
+                        return "rz-frozen-cell rz-frozen-cell-right";
+                    }
+                }
+                if (!ColumnsCollection[i].IsFrozen())
+                {
+                    break;
+                }
+            }
+            return "rz-frozen-cell rz-frozen-cell-right-inner";
         }
 
         internal string getColumnAlignClass(RadzenDataGridColumn<TItem> column)
@@ -349,7 +419,7 @@ namespace Radzen.Blazor
         /// </summary>
         /// <param name="args">The <see cref="EventArgs"/> instance containing the event data.</param>
         /// <param name="column">The column.</param>
-        protected void OnFilterKeyPress(EventArgs args, RadzenDataGridColumn<TItem> column)
+        protected virtual void OnFilterKeyPress(EventArgs args, RadzenDataGridColumn<TItem> column)
         {
             Debounce(() => DebounceFilter(column), FilterDelay);
         }
@@ -629,7 +699,7 @@ namespace Radzen.Blazor
         /// <param name="column">The column.</param>
         /// <param name="force">if set to <c>true</c> [force].</param>
         /// <param name="isFirst">if set to <c>true</c> [is first].</param>
-        protected async Task OnFilter(ChangeEventArgs args, RadzenDataGridColumn<TItem> column, bool force = false, bool isFirst = true)
+        protected virtual async Task OnFilter(ChangeEventArgs args, RadzenDataGridColumn<TItem> column, bool force = false, bool isFirst = true)
         {
             string property = column.GetFilterProperty();
             if (AllowFiltering && column.Filterable)
@@ -654,6 +724,7 @@ namespace Radzen.Blazor
 
                     if (LoadData.HasDelegate && IsVirtualizationAllowed())
                     {
+                        isOData = Data != null && typeof(ODataEnumerable<TItem>).IsAssignableFrom(Data.GetType());
                         Data = null;
 #if NET5_0_OR_GREATER
                         ResetLoadData();
@@ -1696,7 +1767,7 @@ namespace Radzen.Blazor
         }
 
         /// <summary>
-        /// Resets the DataGrid instance to initial state with no sorting, grouping and/or filtering.
+        /// Resets the DataGrid instance to initial state with no sorting, grouping and/or filtering, column visibility.
         /// </summary>
         /// <param name="resetColumnState">if set to <c>true</c> [reset column state].</param>
         /// <param name="resetRowState">if set to <c>true</c> [reset row state].</param>
@@ -1721,7 +1792,9 @@ namespace Radzen.Blazor
                     c.ResetSortOrder();
                     c.SetOrderIndex(null);
                     c.SetWidth(null);
+                    c.SetVisible(null);
                 });
+                selectedColumns = allColumns.Where(c => c.Pickable && c.GetVisible()).ToList();
                 sorts.Clear();
            }
 
@@ -1816,7 +1889,7 @@ namespace Radzen.Blazor
 
         IEnumerable<FilterDescriptor> filters = Enumerable.Empty<FilterDescriptor>();
 
-        async Task InvokeLoadData(int start, int top)
+        internal async Task InvokeLoadData(int start, int top)
         {
             var orderBy = GetOrderBy();
 
@@ -1827,7 +1900,8 @@ namespace Radzen.Blazor
             var filterString = allColumns.ToList().ToFiltefrString<TItem>();
             Query.Filter = filterString;
 
-            filters = allColumns.ToList().Where(c => c.Filterable && c.GetVisible() && (c.GetFilterValue() != null
+            filters = allColumns.ToList()
+                .Where(c => c.Filterable && c.GetVisible() && (c.GetFilterValue() != null
                     || c.GetFilterOperator() == FilterOperator.IsNotNull || c.GetFilterOperator() == FilterOperator.IsNull
                     || c.GetFilterOperator() == FilterOperator.IsEmpty | c.GetFilterOperator() == FilterOperator.IsNotEmpty))
                 .Select(c => new FilterDescriptor()
@@ -1838,8 +1912,11 @@ namespace Radzen.Blazor
                     SecondFilterValue = c.GetSecondFilterValue(),
                     SecondFilterOperator = c.GetSecondFilterOperator(),
                     LogicalFilterOperator = c.GetLogicalFilterOperator()
-                }).ToList();
+                })
+                .ToList();
 
+            Query.Filters = filters;
+            Query.Sorts = sorts;
             if (LoadData.HasDelegate)
             {
                 await LoadData.InvokeAsync(new Radzen.LoadDataArgs()
@@ -1911,7 +1988,13 @@ namespace Radzen.Blazor
         public string KeyProperty { get; set; }
 
         internal Func<TItem, object> keyPropertyGetter;
-        bool ItemEquals(TItem item, TItem otherItem)
+        /// <summary>
+        /// Compares two items
+        /// </summary>
+        /// <param name="item">The first item</param>
+        /// <param name="otherItem">The second item</param>
+        /// <returns>Are items equal</returns>
+        protected bool ItemEquals(TItem item, TItem otherItem)
         {
             return keyPropertyGetter != null ? keyPropertyGetter(item).Equals(keyPropertyGetter(otherItem)) : item.Equals(otherItem);
         }
@@ -3183,7 +3266,7 @@ namespace Radzen.Blazor
                 {
                     return element.GetDateTime();
                 }
-                else if (type.IsEnum)
+                else if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 {
                     return element.GetInt32();
                 }
@@ -3214,7 +3297,7 @@ namespace Radzen.Blazor
                     }
                     else
                     {
-                        return element.GetRawText().Replace("\"", "");
+                        return element.GetString();
                     }
                 }
             }
@@ -3252,10 +3335,6 @@ namespace Radzen.Blazor
                         CurrentPage = 0;
                         skip = 0;
                         Reset(true);
-                        allColumns.ToList().ForEach(c =>
-                        {
-                            c.SetVisible(true);
-                        });
                         columns = allColumns.Where(c => c.Parent == null).ToList();
                         InvokeAsync(Reload);
 

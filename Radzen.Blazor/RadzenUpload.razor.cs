@@ -35,6 +35,12 @@ namespace Radzen.Blazor
     public partial class RadzenUpload : RadzenComponent
     {
         /// <summary>
+        /// Specifies additional custom attributes that will be rendered by the input.
+        /// </summary>
+        /// <value>The attributes.</value>
+        public IReadOnlyDictionary<string, object> InputAttributes { get; set; }
+
+        /// <summary>
         /// Gets file input reference.
         /// </summary>
         protected ElementReference fileUpload;
@@ -100,6 +106,13 @@ namespace Radzen.Blazor
         /// <value>The icon.</value>
         [Parameter]
         public string Icon { get; set; }
+
+        /// <summary>
+        /// Gets or sets the icon color.
+        /// </summary>
+        /// <value>The icon color.</value>
+        [Parameter]
+        public string IconColor { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="RadzenUpload"/> is disabled.

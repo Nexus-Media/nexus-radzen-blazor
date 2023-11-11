@@ -19,6 +19,12 @@ namespace Radzen.Blazor
     public partial class RadzenNumeric<TValue> : FormComponent<TValue>
     {
         /// <summary>
+        /// Specifies additional custom attributes that will be rendered by the input.
+        /// </summary>
+        /// <value>The attributes.</value>
+        public IReadOnlyDictionary<string, object> InputAttributes { get; set; }
+
+        /// <summary>
         /// Gets input reference.
         /// </summary>
         protected ElementReference input;

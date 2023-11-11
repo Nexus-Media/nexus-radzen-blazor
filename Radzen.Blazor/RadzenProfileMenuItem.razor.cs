@@ -44,6 +44,20 @@ namespace Radzen.Blazor
         public string Icon { get; set; }
 
         /// <summary>
+        /// Gets or sets the icon color.
+        /// </summary>
+        /// <value>The icon color.</value>
+        [Parameter]
+        public string IconColor { get; set; }
+
+        /// <summary>
+        /// Gets or sets the image.
+        /// </summary>
+        /// <value>The image.</value>
+        [Parameter]
+        public string Image { get; set; }
+
+        /// <summary>
         /// Gets or sets the text.
         /// </summary>
         /// <value>The text.</value>

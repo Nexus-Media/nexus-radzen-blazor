@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Web;
 using System.Linq;
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Radzen.Blazor
 {
@@ -22,6 +23,12 @@ namespace Radzen.Blazor
     /// </example>
     public partial class RadzenAutoComplete : DataBoundFormComponent<string>
     {
+        /// <summary>
+        /// Specifies additional custom attributes that will be rendered by the input.
+        /// </summary>
+        /// <value>The attributes.</value>
+        public IReadOnlyDictionary<string, object> InputAttributes { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="RadzenAutoComplete"/> is multiline.
         /// </summary>
@@ -91,15 +98,20 @@ namespace Radzen.Blazor
                     //
                 }
             }
-            else if (key == "Enter")
+            else if (key == "Enter" || key == "Tab")
             {
                 if (selectedIndex >= 0 && selectedIndex <= items.Count() - 1)
                 {
                     await OnSelectItem(items.ElementAt(selectedIndex));
                     selectedIndex = -1;
                 }
+
+                if (key == "Tab")
+                {
+                    await JSRuntime.InvokeVoidAsync("Radzen.closePopup", PopupID);
+                }
             }
-            else if (key == "Escape" || key == "Tab")
+            else if (key == "Escape")
             {
                 await JSRuntime.InvokeVoidAsync("Radzen.closePopup", PopupID);
             }

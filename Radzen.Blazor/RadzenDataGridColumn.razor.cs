@@ -303,6 +303,22 @@ namespace Radzen.Blazor
         public object FilterValue { get; set; }
 
         /// <summary>
+        /// Gets or sets the filter placeholder.
+        /// </summary>
+        /// <value>The filter placeholder value.</value>
+        [Parameter]
+        public string FilterPlaceholder { get; set; }
+        
+        /// <summary>
+        /// Gets the filter placeholder.
+        /// </summary>
+        /// <returns>System.String.</returns>
+        public string GetFilterPlaceholder()
+        {
+            return FilterPlaceholder ?? string.Empty;
+        }
+        
+        /// <summary>
         /// Gets or sets the second filter value.
         /// </summary>
         /// <value>The second filter value.</value>
@@ -378,6 +394,13 @@ namespace Radzen.Blazor
         /// <value><c>true</c> if frozen will disable horizontal scroll for the column; otherwise, <c>false</c>.</value>
         [Parameter]
         public bool Frozen { get; set; }
+
+        /// <summary>
+        /// Gets or sets the frozen position this <see cref="RadzenDataGridColumn{TItem}"/>
+        /// </summary>
+        /// <value><see cref="FrozenColumnPosition.Left"/> or <see cref="FrozenColumnPosition.Right"/>.</value>
+        [Parameter]
+        public FrozenColumnPosition FrozenPosition { get; set; } = FrozenColumnPosition.Left;
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="RadzenDataGridColumn{TItem}"/> is resizable.
@@ -564,12 +587,26 @@ namespace Radzen.Blazor
 
         private string GetStackedStyleForFrozen()
         {
-            var visibleFrozenColumns = Grid.ColumnsCollection.Where(c => c.GetVisible() && c.IsFrozen()).ToList();
-            var stackColumns = visibleFrozenColumns.Where((c, i) => visibleFrozenColumns.IndexOf(this) > i);
+            var visibleFrozenColumns = Grid.ColumnsCollection.Where(c => c.GetVisible() && c.IsFrozen() && c.FrozenPosition == FrozenPosition).ToList();
+            if (FrozenPosition == FrozenColumnPosition.Left)
+            {
+                var stackColumns = visibleFrozenColumns.Where((c, i) => visibleFrozenColumns.IndexOf(this) > i);
 
+                return GetStackedStyleForFrozen(stackColumns, "left");
+            }
+            else
+            {
+                var stackColumns = visibleFrozenColumns.Where((c, i) => visibleFrozenColumns.IndexOf(this) < i);
+
+                return GetStackedStyleForFrozen(stackColumns, "right");
+            }
+        }
+
+        private static string GetStackedStyleForFrozen(IEnumerable<RadzenDataGridColumn<TItem>> stackColumns, string position)
+        {
             if (!stackColumns.Any())
             {
-                return "left:0";
+                return $"{position}:0";
             }
 
             var widths = new List<string>();
@@ -595,10 +632,10 @@ namespace Radzen.Blazor
 
             if (widths.Count == 1)
             {
-                return $"left:{widths.First()}";
+                return $"{position}:{widths.First()}";
             }
 
-            return $"left:calc({string.Join(" + ", widths)})";
+            return $"{position}:calc({string.Join(" + ", widths)})";
         }
 
         internal bool IsFrozen()
@@ -960,7 +997,11 @@ namespace Radzen.Blazor
 
             FilterValue = null;
             SecondFilterValue = null;
-            FilterOperator = typeof(System.Collections.IEnumerable).IsAssignableFrom(FilterPropertyType) ? FilterOperator.Contains : default(FilterOperator);
+            FilterOperator = FilterOperator == FilterOperator.Custom
+                ? FilterOperator.Custom
+                : typeof(System.Collections.IEnumerable).IsAssignableFrom(FilterPropertyType)
+                    ? FilterOperator.Contains
+                    : default(FilterOperator);
             SecondFilterOperator = default(FilterOperator);
             LogicalFilterOperator = default(LogicalFilterOperator);
         }
@@ -1073,6 +1114,10 @@ namespace Radzen.Blazor
             {
                 var isStringOperator = o == FilterOperator.Contains || o == FilterOperator.DoesNotContain
                     || o == FilterOperator.StartsWith || o == FilterOperator.EndsWith || o == FilterOperator.IsEmpty || o == FilterOperator.IsNotEmpty;
+
+                if ((FilterPropertyType == typeof(string) || !QueryableExtension.IsEnumerable(FilterPropertyType)) && 
+                    (o == FilterOperator.In || o == FilterOperator.NotIn)) return false;
+
                 return FilterPropertyType == typeof(string) || QueryableExtension.IsEnumerable(FilterPropertyType) ? isStringOperator
                       || o == FilterOperator.Equals || o == FilterOperator.NotEquals
                       || o == FilterOperator.IsNull || o == FilterOperator.IsNotNull

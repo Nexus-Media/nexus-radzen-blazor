@@ -199,7 +199,7 @@ window.Radzen = {
 
     document.body.appendChild(script);
   },
-    createMap: function (wrapper, ref, id, apiKey, zoom, center, markers, options, fitBoundsToMarkersOnUpdate) {
+  createMap: function (wrapper, ref, id, apiKey, zoom, center, markers, options, fitBoundsToMarkersOnUpdate) {
     var api = function () {
       var defaultView = document.defaultView;
 
@@ -227,61 +227,74 @@ window.Radzen = {
         });
       });
 
-            Radzen.updateMap(id, zoom, center, markers, options, fitBoundsToMarkersOnUpdate);
+      Radzen.updateMap(id, zoom, center, markers, options, fitBoundsToMarkersOnUpdate);
     });
   },
-    updateMap: function (id, zoom, center, markers, options, fitBoundsToMarkersOnUpdate) {
+  updateMap: function (id, zoom, center, markers, options, fitBoundsToMarkersOnUpdate) {
+    var api = function () {
+        var defaultView = document.defaultView;
+
+        return new Promise(function (resolve, reject) {
+            if (defaultView.google && defaultView.google.maps) {
+                return resolve(defaultView.google);
+            }
+
+            Radzen.loadGoogleMaps(defaultView, apiKey, resolve, reject);
+        });
+    };
+    api().then(function (google) {
         let markerBounds = new google.maps.LatLngBounds();
 
-    if (Radzen[id] && Radzen[id].instance) {
-        if (Radzen[id].instance.markers && Radzen[id].instance.markers.length) {
-            for (var i = 0; i < Radzen[id].instance.markers.length; i++) {
-                Radzen[id].instance.markers[i].setMap(null);
+        if (Radzen[id] && Radzen[id].instance) {
+            if (Radzen[id].instance.markers && Radzen[id].instance.markers.length) {
+                for (var i = 0; i < Radzen[id].instance.markers.length; i++) {
+                    Radzen[id].instance.markers[i].setMap(null);
+                }
             }
-        }
 
-        if (markers) {
-            Radzen[id].instance.markers = [];
+            if (markers) {
+                Radzen[id].instance.markers = [];
 
-            markers.forEach(function (m) {
-                var marker = new this.google.maps.Marker({
-                    position: m.position,
-                    title: m.title,
-                    label: m.label
-                });
-
-                marker.addListener('click', function (e) {
-                    Radzen[id].invokeMethodAsync('RadzenGoogleMap.OnMarkerClick', {
-                        Title: marker.title,
-                        Label: marker.label,
-                        Position: marker.position
+                markers.forEach(function (m) {
+                    var marker = new this.google.maps.Marker({
+                        position: m.position,
+                        title: m.title,
+                        label: m.label
                     });
+
+                    marker.addListener('click', function (e) {
+                        Radzen[id].invokeMethodAsync('RadzenGoogleMap.OnMarkerClick', {
+                            Title: marker.title,
+                            Label: marker.label,
+                            Position: marker.position
+                        });
+                    });
+
+                    marker.setMap(Radzen[id].instance);
+
+                    Radzen[id].instance.markers.push(marker);
+
+                        markerBounds.extend(marker.position);
                 });
-
-                marker.setMap(Radzen[id].instance);
-
-                Radzen[id].instance.markers.push(marker);
-
-                    markerBounds.extend(marker.position);
-            });
-        }
-
-        if (zoom) {
-            Radzen[id].instance.setZoom(zoom);
             }
 
-        if (center) {
-            Radzen[id].instance.setCenter(center);
-        }
+            if (zoom) {
+                Radzen[id].instance.setZoom(zoom);
+                }
 
-        if (options) {
-            Radzen[id].instance.setOptions(options);
-        }
+            if (center) {
+                Radzen[id].instance.setCenter(center);
+            }
+
+            if (options) {
+                Radzen[id].instance.setOptions(options);
+            }
 
             if (markers && fitBoundsToMarkersOnUpdate) {
                 Radzen[id].instance.fitBounds(markerBounds);
             }
-    }
+        }
+    });
   },
   destroyMap: function (id) {
     if (Radzen[id].instance) {
@@ -318,13 +331,11 @@ window.Radzen = {
       }
 
       var newValue = percent * (max - min) + min;
-      var oldValue = range ? value[slider.isMin ? 0 : 1] : value;
 
       if (
         slider.canChange &&
         newValue >= min &&
-        newValue <= max &&
-        newValue != oldValue
+        newValue <= max
       ) {
         slider.invokeMethodAsync(
           'RadzenSlider.OnValueChange',
@@ -471,6 +482,50 @@ window.Radzen = {
     }
 
     return ul.nextSelectedIndex;
+    },
+  focusTableRow: function (gridId, isDown, startIndex) {
+    var grid = document.getElementById(gridId);
+    if (!grid) return;
+
+    var table = grid.querySelector('.rz-grid-table').getElementsByTagName("tbody")[0];
+
+    if (!table.rows || table.rows.length == 0) return;
+
+    if (startIndex == undefined || startIndex == null) {
+      startIndex = -1;
+    }
+
+    table.nextSelectedIndex = startIndex;
+    if (isDown) {
+        while (table.nextSelectedIndex < table.rows.length - 1) {
+            table.nextSelectedIndex++;
+            if (!table.rows[table.nextSelectedIndex].classList.contains('rz-state-disabled'))
+                break;
+        }
+    } else {
+        while (table.nextSelectedIndex > 0) {
+            table.nextSelectedIndex--;
+            if (!table.rows[table.nextSelectedIndex].classList.contains('rz-state-disabled'))
+                break;
+        }
+    }
+
+    var highlighted = table.querySelectorAll('.rz-state-highlight');
+    if (highlighted.length) {
+      for (var i = 0; i < highlighted.length; i++) {
+        highlighted[i].classList.remove('rz-state-highlight');
+      }
+    }
+
+    if (
+      table.nextSelectedIndex >= 0 &&
+      table.nextSelectedIndex <= table.rows.length - 1
+    ) {
+      table.rows[table.nextSelectedIndex].classList.add('rz-state-highlight');
+      table.parentNode.parentNode.scrollTop = table.rows[table.nextSelectedIndex].offsetTop - table.rows[table.nextSelectedIndex].offsetHeight;
+    }
+
+    return table.nextSelectedIndex;
   },
   uploadInputChange: function (e, url, auto, multiple, clear, parameterName) {
       if (auto) {
@@ -1048,8 +1103,8 @@ window.Radzen = {
         }
     }, 500);
 
+    document.removeEventListener('keydown', Radzen.closePopupOrDialog);
     if (options.closeDialogOnEsc) {
-        document.removeEventListener('keydown', Radzen.closePopupOrDialog);
         document.addEventListener('keydown', Radzen.closePopupOrDialog);
     }
   },
@@ -1463,8 +1518,21 @@ window.Radzen = {
       selection.addRange(range);
     }
   },
-  selectionAttributes: function (selector, attributes) {
+  selectionAttributes: function (selector, attributes, container) {
     var selection = getSelection();
+    var range = selection.rangeCount > 0 && selection.getRangeAt(0);
+    var parent = range && range.commonAncestorContainer;
+    var inside = false;
+    while (parent) {
+      if (parent == container) {
+        inside = true;
+        break;
+      }
+      parent = parent.parentNode;
+    }
+    if (!inside) {
+      return {};
+    }
     var target = selection.focusNode;
     var innerHTML;
     if (target) {
@@ -1476,7 +1544,7 @@ window.Radzen = {
           innerHTML = target.outerHTML;
         }
       }
-      if (target && !target.matches(selector)) {
+      if (target && target.matches && !target.matches(selector)) {
         target = target.closest(selector);
       }
     }
