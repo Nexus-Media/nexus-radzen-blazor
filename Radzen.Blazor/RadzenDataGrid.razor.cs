@@ -102,8 +102,8 @@ namespace Radzen.Blazor
                 top = PageSize;
             }
 
-            var filter = isOData == true ? 
-                    allColumns.ToList().ToODataFilterString<TItem>() : allColumns.ToList().ToFilterString<TItem>();
+            var filter = isOData == true ?
+                    allColumns.ToList().ToODataFilterString<TItem>() : allColumns.ToList().ToFiltefrString<TItem>();
             var loadDataArgs = $"{request.StartIndex}|{top}{GetOrderBy()}{filter}";
 
             if (lastLoadDataArgs != loadDataArgs)
