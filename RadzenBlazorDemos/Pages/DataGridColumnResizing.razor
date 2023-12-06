@@ -4,12 +4,12 @@
 
 @inherits DbContextPage
 
-<RadzenDataGrid Data="@employees" TItem="Employee" ColumnWidth="300px" AllowColumnResize="true" ColumnResized=@OnColumnResized>
+<RadzenDataGrid GridLines="Radzen.DataGridGridLines.Vertical" Data="@employees" TItem="Employee" ColumnWidth="300px" AllowColumnResize="true" ColumnResized=@OnColumnResized>
     <Columns>
         <RadzenDataGridColumn TItem="Employee" Property="EmployeeID" Title="ID" Width="50px" TextAlign="TextAlign.Center" />
         <RadzenDataGridColumn TItem="Employee" Title="Photo" Sortable="false" Width="200px" >
             <Template Context="data">
-                <RadzenImage Path="@data.Photo" class="rz-gravatar" />
+                <RadzenImage Path="@data.Photo" class="rz-gravatar" AlternateText="@(data.FirstName + " " + data.LastName)" />
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="Employee" Property="FirstName" Title="First Name" />

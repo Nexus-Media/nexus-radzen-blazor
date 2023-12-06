@@ -24,6 +24,27 @@ namespace Radzen.Blazor
     public partial class RadzenDatePicker<TValue> : RadzenComponent, IRadzenFormComponent
     {
         /// <summary>
+        /// Gets or sets the previous month aria label text.
+        /// </summary>
+        /// <value>The previous month aria label text.</value>
+        [Parameter]
+        public string PrevMonthAriaLabel { get; set; } = "Previous month";
+
+        /// <summary>
+        /// Gets or sets the next month aria label text.
+        /// </summary>
+        /// <value>The next month aria label text.</value>
+        [Parameter]
+        public string NextMonthAriaLabel { get; set; } = "Next month";
+
+        /// <summary>
+        /// Gets or sets the toggle Am/Pm aria label text.
+        /// </summary>
+        /// <value>The toggle Am/Pm aria label text.</value>
+        [Parameter]
+        public string ToggleAmPmAriaLabel { get; set; } = "Toggle Am/Pm";
+
+        /// <summary>
         /// Specifies additional custom attributes that will be rendered by the input.
         /// </summary>
         /// <value>The attributes.</value>
@@ -651,6 +672,13 @@ namespace Radzen.Blazor
         /// <value><c>true</c> if disabled; otherwise, <c>false</c>.</value>
         [Parameter]
         public bool Disabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether days part is shown.
+        /// </summary>
+        /// <value><c>true</c> if days part is shown; otherwise, <c>false</c>.</value>
+        [Parameter]
+        public bool ShowDays { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether time part is shown.
