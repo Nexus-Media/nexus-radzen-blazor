@@ -248,7 +248,7 @@ namespace Radzen
                         var enumerableSecondValueAsString = "new []{" + String.Join(",",
                                 (enumerableSecondValue.ElementType == typeof(string) ? enumerableSecondValue.Cast<string>().Select(i => $@"""{i}""").Cast<object>() : enumerableSecondValue.Cast<object>())) + "}";
 
-                        if (enumerableValue != null)
+                        if (enumerableValue?.Any() == true)
                         {
                             var columnFilterOperator = column.GetFilterOperator();
                             var columnSecondFilterOperator = column.GetSecondFilterOperator();
@@ -273,6 +273,10 @@ namespace Radzen
                                 {
                                     whereList.Add($@"{(columnFilterOperator == FilterOperator.DoesNotContain ? "!" : "")}({enumerableValueAsString}).Contains({property})");
                                 }
+                                else if (columnFilterOperator == FilterOperator.In || columnFilterOperator == FilterOperator.NotIn)
+                                {
+	                                whereList.Add($@"({property}).{(columnFilterOperator == FilterOperator.NotIn ? "Except" : "Intersect")}({enumerableValueAsString}).Any()");
+                                }
                             }
                             else
                             {
@@ -280,6 +284,11 @@ namespace Radzen
                                         (columnSecondFilterOperator == FilterOperator.Contains || columnSecondFilterOperator == FilterOperator.DoesNotContain))
                                 {
                                     whereList.Add($@"{(columnFilterOperator == FilterOperator.DoesNotContain ? "!" : "")}({enumerableValueAsString}).Contains({property}) {booleanOperator} {(columnSecondFilterOperator == FilterOperator.DoesNotContain ? "!" : "")}({enumerableSecondValueAsString}).Contains({property})");
+                                }
+                                else if ((columnFilterOperator == FilterOperator.In || columnFilterOperator == FilterOperator.NotIn) &&
+                                         (columnSecondFilterOperator == FilterOperator.In || columnSecondFilterOperator == FilterOperator.NotIn))
+                                {
+	                                whereList.Add($@"({property}).{(columnFilterOperator == FilterOperator.NotIn ? "Except" : "Intersect")}({enumerableValueAsString}).Any() {booleanOperator} ({property}).{(columnSecondFilterOperator == FilterOperator.NotIn ? "Except" : "Intersect")}({enumerableSecondValueAsString}).Any()");
                                 }
                             }
                         }
@@ -640,6 +649,8 @@ namespace Radzen
             {
                 property = $"({property})";
             }
+            bool hasNp = property.Contains("np(");
+            string npProperty = hasNp ? property : $@"np({property})";
 
             var columnFilterOperator = !second ? column.GetFilterOperator() : column.GetSecondFilterOperator();
 
@@ -685,19 +696,19 @@ namespace Radzen
                 }
                 else if (columnFilterOperator == FilterOperator.IsNull)
                 {
-                    return $@"np({property}) == null";
+                    return npProperty + " == null";
                 }
                 else if (columnFilterOperator == FilterOperator.IsEmpty)
                 {
-                    return $@"np({property}) == """"";
+                    return npProperty + @" == """"";
                 }
                 else if (columnFilterOperator == FilterOperator.IsNotEmpty)
                 {
-                    return $@"np({property}) != """"";
+                    return npProperty + @" != """"";
                 }
                 else if (columnFilterOperator == FilterOperator.IsNotNull)
                 {
-                    return $@"np({property}) != null";
+                    return npProperty + @" != null";
                 }
             }
             else if (PropertyAccess.IsNumeric(column.FilterPropertyType))

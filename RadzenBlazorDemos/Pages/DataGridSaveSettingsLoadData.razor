@@ -25,7 +25,7 @@
     <Columns>
         <RadzenDataGridColumn TItem="Employee" Property="Photo" Title="Employee" Sortable="false" Filterable="false">
             <Template Context="data">
-                <RadzenImage Path="@data.Photo" style="width: 40px; height: 40px; border-radius: 8px; margin-right: 8px;" />
+                <RadzenImage Path="@data.Photo" style="width: 40px; height: 40px; border-radius: 8px; margin-right: 8px;" AlternateText="@(data.FirstName + " " + data.LastName)" />
                 @data.FirstName @data.LastName
             </Template>
         </RadzenDataGridColumn>
@@ -49,7 +49,6 @@
 
     int count;
     bool isLoading = false;
-    bool loaded;
     async Task LoadData(LoadDataArgs args)
     {
         console.Log("LoadData");
@@ -77,8 +76,6 @@
         employees = await Task.FromResult(query.Skip(args.Skip.Value).Take(args.Top.Value).ToList());
 
         isLoading = false;
-
-        loaded = true;
     }
 
     DataGridSettings _settings;

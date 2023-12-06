@@ -49,7 +49,7 @@ namespace Radzen.Blazor
         }
 
         /// <summary>
-        /// Specifies how to render lines between data points. Set to <see cref="Line"/> by default
+        /// Specifies how to render lines between data points. Set to <see cref="Interpolation.Line"/> by default
         /// </summary>
         [Parameter]
         public Interpolation Interpolation { get; set; } = Interpolation.Line;
