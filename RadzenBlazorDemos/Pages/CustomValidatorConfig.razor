@@ -6,7 +6,7 @@
         <div class="col">
             <RadzenCard class="w-100 mb-4" >
             <RadzenCheckBox @bind-Value=@popup Name="popup"></RadzenCheckBox>
-                <RadzenLabel Text="Display validators as popup" For="popup" Style="margin-left: 8px; vertical-align: middle;" />
+                <RadzenLabel Text="Display validators as popup" Component="popup" Style="margin-left: 8px; vertical-align: middle;" />
             </RadzenCard>
         </div>
     </div>
@@ -16,7 +16,7 @@
                 <RadzenFieldset Text="Personal information">
                     <div class="row mb-5">
                         <div class="col-md-4">
-                            <RadzenLabel Text="Email" />
+                            <RadzenLabel Text="Email" Component="Email" />
                         </div>
                         <div class="col">
                             <RadzenTextBox style="display: block" Name="Email" @bind-Value=@model.Email class="w-100" Placeholder="Try with mail@example.com"/>
