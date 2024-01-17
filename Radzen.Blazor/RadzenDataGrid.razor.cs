@@ -527,6 +527,12 @@ namespace Radzen.Blazor
         [Parameter]
         public RenderFragment HeaderTemplate { get; set; } 
 
+        /// <summary>
+        /// Gives the grid a custom footer, allowing the adding of components to create custom tool bars or custom pagination
+        /// </summary>
+        [Parameter]
+        public RenderFragment FooterTemplate { get; set; }
+
         internal object selectedColumns;
 
         /// <summary>
@@ -1458,6 +1464,13 @@ namespace Radzen.Blazor
         public RenderFragment<Group> GroupHeaderTemplate { get; set; }
 
         /// <summary>
+        /// Gets or sets the group header with option to add custom toggle visibility button template.
+        /// </summary>
+        /// <value>The group header template with option to add custom toggle visibility.</value>
+        [Parameter]
+        public RenderFragment<(Group Group, RadzenDataGridGroupRow<TItem> GroupHeader)> GroupHeaderToggleTemplate { get; set; }
+
+        /// <summary>
         /// Gets or sets the group panel text.
         /// </summary>
         /// <value>The group panel text.</value>
@@ -2116,7 +2129,10 @@ namespace Radzen.Blazor
 
         internal bool? allGroupsExpanded;
 
-        internal async System.Threading.Tasks.Task ExpandGroupItem(RadzenDataGridGroupRow<TItem> item, bool? expandedOnLoad)
+        /// <summary>
+        /// Expand group item.
+        /// </summary>
+        public async System.Threading.Tasks.Task ExpandGroupItem(RadzenDataGridGroupRow<TItem> item, bool? expandedOnLoad)
         {
             if (expandedOnLoad == true)
                 return;
@@ -2253,6 +2269,7 @@ namespace Radzen.Blazor
         {
             if (firstRender && Visible && (LoadData.HasDelegate && Data == null) && IsVirtualizationAllowed())
             {
+                await Task.Yield();
                 Data = Enumerable.Empty<TItem>().Append(default(TItem));
             }
             else if(settings == null)
@@ -2442,6 +2459,13 @@ namespace Radzen.Blazor
         /// <value><c>true</c> if DataGrid is using alternating row styles; otherwise, <c>false</c>.</value>
         [Parameter]
         public bool AllowAlternatingRows { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to show group visibility column
+        /// </summary>
+        /// <value><c>true</c> if want to show left column with group visibility toggle, otherwise <c>false</c>.</value>
+        [Parameter]
+        public bool ShowGroupExpandColumn { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the grid lines.
