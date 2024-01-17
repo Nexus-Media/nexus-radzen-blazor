@@ -149,7 +149,7 @@ $input-height: 2.25rem !default;
 $input-line-height: 1.429 !default;
 $input-border-radius: var(--rz-border-radius) !default;
 $input-placeholder-color: var(--rz-text-tertiary-color) !default;
-$tooltip-color: var(--rz-text-contrast-color) !default;
+$tooltip-color: var(--rz-white) !default;
 $tooltip-border-radius: var(--rz-border-radius) !default;
 $tooltip-font-size: 0.875rem !default;
 $body-bg: var(--rz-base-100) !default;
@@ -214,8 +214,8 @@ $button-active-background-size: 100% 0%, 100% 200%  !default;
 
 // SelectButton
 $selectbar-background-color: transparent !default;
-$selectbar-selected-background-color: lighten($rz-primary-lighter, 20%) !default;
-$selectbar-selected-color: $rz-primary !default;
+$selectbar-selected-background-color: var(--rz-primary-lighter) !default;
+$selectbar-selected-color: var(--rz-on-primary-lighter) !default;
 $selectbar-selected-border: var(--rz-border-normal) !default;
 
 
@@ -317,9 +317,9 @@ $tabs-tab-hover-color: var(--rz-primary) !default;
 $grid-border-radius: 0 !default;
 $grid-data-border-shadow: 0 1px 0 0 var(--rz-base-200), 0 -1px 0 0 var(--rz-base-200);
 $grid-hover-background-color: var(--rz-primary-lighter) !default;
-$grid-hover-color: $rz-primary !default;
+$grid-hover-color: var(--rz-on-primary-lighter) !default;
 $grid-selected-background-color: lighten($rz-primary-lighter, 20%) !default;
-$grid-selected-color: $rz-primary !default;
+$grid-selected-color: var(--rz-on-primary-lighter) !default;
 $grid-stripe-background-color: lighten($rz-base-100, 1%) !default;
 $grid-header-cell-border-bottom: var(--rz-border-normal) !default;
 $grid-header-background-color: var(--rz-base-100) !default;
@@ -341,7 +341,7 @@ $grid-border: none !default;
 $grid-shadow: none !default;
 $grid-column-resizer-helper-background-color: var(--rz-primary) !default;
 $grid-detail-template-background-color: var(--rz-base-100) !default;
-$grid-loading-indicator-color: var(--rz-primary) !default;
+$grid-loading-indicator-color: var(--rz-on-primary-lighter) !default;
 $grid-loading-indicator-background-color: var(--rz-primary-lighter) !default;
 $column-drag-handle-color: var(--rz-text-disabled-color) !default;
 $column-drag-handle-hover-color: var(--rz-text-title-color) !default;
@@ -379,15 +379,14 @@ $scheduler-prev-next-button-background-color: var(--rz-base-200) !default;
 $scheduler-prev-next-button-color: var(--rz-text-color) !default;
 $scheduler-view-button-color: var(--rz-text-color) !default;
 $scheduler-view-button-background-color: transparent !default;
-$scheduler-view-selected-background-color: lighten($rz-primary-lighter, 20%) !default;
+$scheduler-view-selected-background-color: var(--rz-primary-lighter) !default;
 $scheduler-view-selected-border-color: transparent !default;
-$scheduler-view-selected-color: var(--rz-primary) !default;
+$scheduler-view-selected-color: var(--rz-on-primary-lighter) !default;
 $scheduler-header-background-color: var(--rz-base-100) !default;
 $scheduler-header-color: var(--rz-text-tertiary-color) !default;
 $scheduler-border-color: var(--rz-base-200) !default;
 $scheduler-minor-border-color: var(--rz-base-100) !default;
 $scheduler-color: var(--rz-text-color) !default;
-$scheduler-event-color: var(--rz-text-contrast-color) !default;
 
 // Overlay Panel
 $overlay-shadow: $rz-shadow-3 !default;
@@ -395,6 +394,7 @@ $overlay-shadow: $rz-shadow-3 !default;
 // Pager
 $paginator-background-color: transparent !default;
 $paginator-numeric-button-selected-background-color: var(--rz-primary-lighter) !default;
+$paginator-numeric-button-selected-color: var(--rz-on-primary-lighter) !default;
 $paginator-numeric-button-selected-border: 1px solid transparent !default;
 $paginator-summary-color: var(--rz-text-tertiary-color) !default;
 
@@ -430,12 +430,12 @@ $sidebar-toggle-color: var(--rz-base-800) !default;
 $menu-border: none !default;
 $menu-border-radius: 0 !default;
 $menu-item-color: var(--rz-text-color) !default;
-$menu-item-hover-color: var(--rz-primary) !default;
+$menu-item-hover-color: var(--rz-on-primary-lighter) !default;
 $menu-item-hover-background-color: var(--rz-primary-lighter) !default;
 $menu-item-selected-color: var(--rz-primary) !default;
 $menu-item-transition: var(--rz-transition-all) !default;
 $menu-top-item-color: $menu-item-color !default;
-$menu-top-item-hover-color: var(--rz-primary) !default;
+$menu-top-item-hover-color: var(--rz-on-primary-lighter) !default;
 $menu-top-item-hover-background-color: var(--rz-primary-lighter) !default;
 $menu-top-item-icon-color: $menu-top-item-color !default;
 $menu-top-item-icon-hover-color: $menu-top-item-hover-color !default;
@@ -471,9 +471,11 @@ $datepicker-trigger-icon-hover-color: var(--rz-text-title-color) !default;
 $datepicker-panel-shadow: $rz-shadow-3 !default;
 $datepicker-header-background-color: var(--rz-base-background-color) !default;
 $datepicker-header-color: var(--rz-text-color) !default;
-$datepicker-calendar-hover-color: var(--rz-primary) !default;
+$datepicker-calendar-hover-color: var(--rz-on-primary-lighter) !default;
 $datepicker-calendar-hover-background-color: var(--rz-primary-lighter) !default;
+$datepicker-calendar-selected-color: var(--rz-on-primary) !default;
 $datepicker-calendar-selected-background-color: var(--rz-primary) !default;
+$datepicker-calendar-selected-hover-color: var(--rz-on-primary-light) !default;
 $datepicker-calendar-selected-hover-background-color: var(--rz-primary-light) !default;
 $datepicker-calendar-border: none !default;
 $datepicker-calendar-border-radius: var(--rz-border-radius) !default;
@@ -484,6 +486,7 @@ $datepicker-calendar-today-box-shadow: inset 0 0 0 1px var(--rz-primary) !defaul
 $timepicker-background-color: $datepicker-header-background-color !default;
 $timepicker-separator-color: var(--rz-text-disabled-color) !default;
 $timepicker-button-background-color: var(--rz-primary) !default;
+$timepicker-button-color: var(--rz-on-primary) !default;
 $timepicker-button-border-radius: var(--rz-border-radius) !default;
 
 // Fieldset
@@ -567,10 +570,10 @@ $radio-checked-border: var(--rz-input-border) !default;
 $dropdown-item-hover-background-color: var(--rz-primary-lighter) !default;
 $dropdown-item-selected-background-color: var(--rz-primary-lighter) !default;
 $dropdown-item-selected-shadow: none !default;
-$dropdown-item-hover-color: var(--rz-primary) !default;
-$dropdown-item-selected-color: var(--rz-primary) !default;
+$dropdown-item-hover-color: var(--rz-on-primary-lighter) !default;
+$dropdown-item-selected-color: var(--rz-on-primary-lighter) !default;
 $dropdown-item-selected-hover-background-color: var(--rz-primary-lighter) !default;
-$dropdown-item-selected-hover-color: var(--rz-primary) !default;
+$dropdown-item-selected-hover-color: var(--rz-on-primary-lighter) !default;
 $dropdown-item-transition: var(--rz-transition-all) !default;
 $dropdown-filter-border: var(--rz-border-base-200) !default;
 
@@ -589,8 +592,9 @@ $rating-disabled-opacity: 0.5 !default;
 // Upload
 $upload-button-bar-background-color: var(--rz-base-100) !default;
 $upload-choose-background-color: var(--rz-secondary-lighter) !default;
-$upload-choose-color: var(--rz-secondary) !default;
+$upload-choose-color: var(--rz-on-secondary-lighter) !default;
 $upload-choose-hover-background-color: var(--rz-secondary-light) !default;
+$upload-choose-hover-color: var(--rz-on-secondary-light) !default;
 $upload-cancel-background-color: var(--rz-base-300) !default;
 
 // Dialog
@@ -609,14 +613,16 @@ $scrollbar-color: rgba($rz-base-600, 0.5) !default;
 $editor-toolbar-background-color: var(--rz-base-100) !default;
 $editor-button-background-color: var(--rz-base-100) !default;
 $editor-button-selected-background-color: var(--rz-primary) !default;
+$editor-button-selected-color: var(--rz-on-primary) !default;
 
 // Splitter
 $splitter-bar-color: var(--rz-text-tertiary-color) !default;
-$splitter-bar-color-active: var(--rz-primary) !default;
+$splitter-bar-color-active: var(--rz-on-primary-lighter) !default;
 $splitter-bar-background-color-active: var(--rz-primary-lighter) !default;
 
 // Tooltip
 $tooltip-background-color: var(--rz-base-900) !default;
+$tooltip-color: var(--rz-white) !default;
 $tooltip-shadow: $rz-shadow-4 !default;
 
 // Gauge

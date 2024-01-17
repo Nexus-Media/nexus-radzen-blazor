@@ -286,14 +286,14 @@ $input-disabled-color: var(--rz-text-disabled-color) !default;
 // Header
 $header-background-color: var(--rz-primary) !default;
 $header-border: none !default;
-$header-color: var(--rz-text-contrast-color) !default;
+$header-color: var(--rz-on-primary) !default;
 $header-shadow: var(--rz-shadow-4) !default;
 
 .rz-header {
   a,
   a:hover,
   a:focus {
-    color: var(--rz-text-contrast-color);
+    color: var(--rz-on-primary);
   }
 }
 
@@ -341,9 +341,9 @@ $panel-shadow: var(--rz-shadow-1) !default;
 
 // SidebarToggle
 $sidebar-toggle-border: none !default;
-$sidebar-toggle-color: var(--rz-text-contrast-color) !default;
+$sidebar-toggle-color: var(--rz-on-primary) !default;
 $sidebar-toggle-background-color: transparent !default;
-$sidebar-toggle-hover-color: var(--rz-text-contrast-color) !default;
+$sidebar-toggle-hover-color: var(--rz-on-primary-light) !default;
 $sidebar-toggle-hover-background-color: var(--rz-primary-light) !default;
 $sidebar-toggle-hover-border-radius: 50% !default;
 
@@ -363,11 +363,11 @@ $menu-item-selected-color: var(--rz-text-title-color) !default;
 $menu-item-icon-color: $menu-item-color !default;
 $menu-item-icon-hover-color: $menu-item-hover-color !default;
 $menu-top-item-padding: 0.5rem !default;
-$menu-top-item-color: var(--rz-text-contrast-color) !default;
+$menu-top-item-color: var(--rz-on-primary) !default;
 $menu-top-item-background-color: var(--rz-primary) !default;
-$menu-top-item-hover-color: var(--rz-text-contrast-color) !default;
+$menu-top-item-hover-color: var(--rz-on-primary) !default;
 $menu-top-item-hover-background-color: transparent !default;
-$menu-top-item-selected-color: var(--rz-text-contrast-color) !default;
+$menu-top-item-selected-color: var(--rz-on-primary) !default;
 $menu-top-item-icon-color: $menu-top-item-color !default;
 $menu-top-item-icon-hover-color: $menu-top-item-hover-color !default;
 $context-menu-padding: 0.5rem 0 !default;
@@ -390,7 +390,7 @@ $panel-menu-item-padding: 1rem !default;
 $panel-menu-item-border: var(--rz-border-base-200) !default;
 $panel-menu-item-background-color: var(--rz-base-background-color) !default;
 $panel-menu-item-active-background-color: var(--rz-primary-lighter) !default;
-$panel-menu-item-active-color: var(--rz-primary) !default;
+$panel-menu-item-active-color: var(--rz-on-primary-lighter) !default;
 $panel-menu-item-offset: 0 !default;
 $panel-menu-2nd-level-vertical-offset: 0.5rem !default;
 $panel-menu-item-2nd-level-padding: 0.5rem 0.5rem 0.5rem 1rem !default;
@@ -404,12 +404,12 @@ $panel-menu-item-2nd-level-font-weight: 400 !default;
 $panel-menu-item-2nd-level-hover-background-color: var(--rz-base-100) !default;
 $panel-menu-item-2nd-level-hover-color: var(--rz-text-title-color) !default;
 $panel-menu-item-2nd-level-active-background-color: var(--rz-primary-lighter) !default;
-$panel-menu-item-2nd-level-active-color: var(--rz-primary) !default;
+$panel-menu-item-2nd-level-active-color: var(--rz-on-primary-lighter) !default;
 $panel-menu-item-2nd-level-active-font-weight: 500 !default;
 $panel-menu-item-3rd-level-hover-background-color: var(--rz-base-100) !default;
 $panel-menu-item-3rd-level-hover-color: var(--rz-text-title-color) !default;
 $panel-menu-item-3rd-level-active-background-color: var(--rz-primary-lighter) !default;
-$panel-menu-item-3rd-level-active-color: var(--rz-primary) !default;
+$panel-menu-item-3rd-level-active-color: var(--rz-on-primary-lighter) !default;
 $panel-menu-icon-color: var(--rz-text-tertiary-color) !default;
 $panel-menu-icon-margin: 0 1rem 0 0 !default;
 $panel-menu-icon-2nd-level-margin: 0 1rem 0 -2.25rem !default;
@@ -477,6 +477,7 @@ $checkbox-width: 1.125rem !default;
 $checkbox-border-width: 2px !default;
 $checkbox-label-margin: 0 1rem !default;
 $checkbox-checked-background-color: var(--rz-primary) !default;
+$checkbox-checked-color: var(--rz-on-primary) !default;
 $checkbox-checked-hover-background-color: var(--rz-primary-light) !default;
 $checkbox-checked-disabled-background-color: var(--rz-base-500) !default;
 $checkbox-checked-shadow: none !default;
@@ -533,7 +534,7 @@ $switch-box-shadow: var(--rz-shadow-1) !default;
 $switch-width: 2.25rem !default;
 $switch-height: 0.875rem !default;
 $switch-circle-background-color: var(--rz-text-contrast-color) !default;
-$switch-checked-circle-background-color: var(--rz-primary) !default;
+$switch-checked-circle-background-color: var(--rz-on-primary-lighter) !default;
 $switch-circle-size: 1.25rem !default;
 $switch-circle-margin: 0 !default;
 
@@ -641,9 +642,9 @@ $dropdown-item-hover-background-color: var(--rz-base-100) !default;
 $dropdown-item-hover-color: var(--rz-text-title-color) !default;
 $dropdown-item-selected-background-color: var(--rz-primary-lighter) !default;
 $dropdown-item-selected-shadow: none !default;
-$dropdown-item-selected-color: var(--rz-primary) !default;
+$dropdown-item-selected-color: var(--rz-on-primary-lighter) !default;
 $dropdown-item-selected-hover-background-color: var(--rz-primary-lighter) !default;
-$dropdown-item-selected-hover-color: var(--rz-primary) !default;
+$dropdown-item-selected-hover-color: var(--rz-on-primary-lighter) !default;
 $dropdown-item-transition: none !default;
 $multiselect-checkbox-margin: 0 1rem 0 0 !default;
 $dropdown-filter-border: var(--rz-border-base-200) !default;
@@ -707,7 +708,7 @@ $selectbar-background-color: var(--rz-base-backgorund-color) !default;
 $selectbar-color: var(--rz-text-color) !default;
 $selectbar-border: var(--rz-border-base-300) !default;
 $selectbar-selected-background-color: var(--rz-primary-lighter) !default;
-$selectbar-selected-color: var(--rz-primary) !default;
+$selectbar-selected-color: var(--rz-on-primary-lighter) !default;
 $selectbar-selected-border: var(--rz-border-base-300) !default;
 $selectbar-border-radius: var(--rz-border-radius) !default;
 
@@ -736,9 +737,9 @@ $datepicker-calendar-header-font-size: 0.75rem !default;
 $datepicker-calendar-font-size: 0.875rem !default;
 $datepicker-calendar-hover-color: var(--rz-text-title-color) !default;
 $datepicker-calendar-hover-background-color: var(--rz-base-100) !default;
-$datepicker-calendar-selected-color: var(--rz-text-contrast-color) !default;
+$datepicker-calendar-selected-color: var(--rz-on-secondary) !default;
 $datepicker-calendar-selected-background-color: var(--rz-secondary) !default;
-$datepicker-calendar-selected-hover-color: var(--rz-text-contrast-color) !default;
+$datepicker-calendar-selected-hover-color: var(--rz-on-secondary-light) !default;
 $datepicker-calendar-selected-hover-background-color: var(--rz-secondary-light) !default;
 $datepicker-calendar-border: none !default;
 $datepicker-calendar-border-radius: 50% !default;
@@ -875,7 +876,7 @@ $grid-cell-font-size: 0.875rem !default;
 $grid-hover-background-color: var(--rz-base-100) !default;
 $grid-hover-color: var(--rz-text-title-color) !default;
 $grid-selected-background-color: var(--rz-primary-lighter) !default;
-$grid-selected-color: var(--rz-primary) !default;
+$grid-selected-color: var(--rz-on-primary-lighter) !default;
 $grid-stripe-background-color: var(--rz-base-50) !default;
 $grid-header-cell-border: none !default;
 $grid-header-cell-border-bottom: var(--rz-border-base-300) !default;
@@ -946,7 +947,7 @@ $paginator-numeric-button-hover-color: var(--rz-text-title-color) !default;
 $paginator-numeric-button-margin: 0 0.25rem !default;
 $paginator-numeric-button-padding: 0.75rem 1rem !default;
 $paginator-numeric-button-selected-background-color: var(--rz-primary-lighter) !default;
-$paginator-numeric-button-selected-color: var(--rz-primary) !default;
+$paginator-numeric-button-selected-color: var(--rz-on-primary-lighter) !default;
 $paginator-numeric-button-selected-border: none !default;
 $paginator-numeric-button-min-width: 3rem !default;
 $paginator-back-button-background-color: transparent !default;
@@ -986,7 +987,7 @@ $paginator-button-size: "%button-lg" !default;
 $tree-background-color: transparent !default;
 $tree-node-padding: 0.25rem 0.5rem !default;
 $tree-node-selected-background-color: var(--rz-primary-lighter) !default;
-$tree-node-selected-color: var(--rz-primary) !default;
+$tree-node-selected-color: var(--rz-on-primary-lighter) !default;
 $tree-node-selected-border-radius: var(--rz-border-radius) !default;
 $tree-node-margin: 0 !default;
 $tree-node-hover-background-color: var(--rz-base-100) !default;
@@ -1071,7 +1072,7 @@ $scheduler-today-button-text-transform: capitalize !default;
 $scheduler-view-button-border: var(--rz-border-base-300) !default;
 $scheduler-view-button-color: var(--rz-text-secondary-color) !default;
 $scheduler-view-button-background-color: var(--rz-base-background-color) !default;
-$scheduler-view-selected-color: var(--rz-primary) !default;
+$scheduler-view-selected-color: var(--rz-on-primary-lighter) !default;
 $scheduler-view-selected-background-color: var(--rz-primary-lighter) !default;
 $scheduler-view-selected-border-color: var(--rz-base-300) !default;
 $scheduler-header-background-color: var(--rz-base-background-color) !default;
@@ -1080,7 +1081,7 @@ $scheduler-header-text-transform: uppercase !default;
 $scheduler-header-color: inherit !default;
 $scheduler-header-border: var(--rz-border-base-300) !default;
 $scheduler-header-padding: 0.5rem 0 !default;
-$scheduler-event-color: var(--rz-text-contrast-color) !default;
+$scheduler-event-color: var(--rz-on-info) !default;
 $scheduler-event-background-color: var(--rz-info) !default;
 $scheduler-event-font-size: 0.75rem !default;
 $scheduler-event-line-height: 1.25rem !default;
@@ -1320,7 +1321,7 @@ $editor-button-background-color: var(--rz-base-background-color) !default;
 $editor-button-color: var(--rz-text-color) !default;
 $editor-button-disabled-color: var(--rz-text-disabled-color) !default;
 $editor-button-selected-background-color: var(--rz-secondary-lighter) !default;
-$editor-button-selected-color: var(--rz-secondary) !default;
+$editor-button-selected-color: var(--rz-on-secondary-lighter) !default;
 $editor-separator-background-color: var(--rz-base-200) !default;
 $editor-content-background-color: var(--rz-base-background-color) !default;
 
@@ -1333,6 +1334,7 @@ $editor-content-background-color: var(--rz-base-background-color) !default;
 }
 
 // Splitter
+$splitter-bar-color-active: var(--rz-on-primary) !default;
 $splitter-bar-background-color-active: var(--rz-primary) !default;
 
 // FormField
