@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System.Linq;
+using Radzen.Blazor.Rendering;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
-
-using Radzen.Blazor.Rendering;
-
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Radzen.Blazor
 {
@@ -28,7 +26,7 @@ namespace Radzen.Blazor
         {
             var classList = ClassList.Create("rz-body")
                                      .Add("rz-body-expanded", Expanded);
-
+                                     
             return classList.ToString();
         }
 

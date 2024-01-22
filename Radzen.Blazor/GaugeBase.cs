@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-
-using Radzen.Blazor.Rendering;
-
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using Radzen.Blazor.Rendering;
 
 namespace Radzen.Blazor
 {

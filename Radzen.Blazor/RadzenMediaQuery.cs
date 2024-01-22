@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace Radzen.Blazor
 {
@@ -23,7 +22,7 @@ namespace Radzen.Blazor
 
         [Inject]
         IJSRuntime JSRuntime { get; set; }
-
+        
 
         /// <summary>
         /// The CSS media query this component will listen for.
@@ -77,7 +76,7 @@ namespace Radzen.Blazor
                     await Change.InvokeAsync(matches);
                 }
                 catch
-                {
+                { 
                     //
                 }
             }

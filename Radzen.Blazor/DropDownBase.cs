@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
-
 using Radzen.Blazor;
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -48,7 +46,7 @@ namespace Radzen
             var totalItemsCount = LoadData.HasDelegate ? Count : view.Count();
             var top = request.Count;
 
-            if (top <= 0)
+            if(top <= 0)
             {
                 top = PageSize;
             }
@@ -124,7 +122,7 @@ namespace Radzen
                         });
                     }));
 
-                    if (VirtualizationOverscanCount != default(int))
+                    if(VirtualizationOverscanCount != default(int))
                     {
                         builder.AddAttribute(3, "OverscanCount", VirtualizationOverscanCount);
                     }
@@ -832,7 +830,7 @@ namespace Radzen
         {
 #if NET5_0_OR_GREATER
             var pageSize = parameters.GetValueOrDefault<int>(nameof(PageSize));
-            if (pageSize != default(int))
+            if(pageSize != default(int))
             {
                 PageSize = pageSize;
             }

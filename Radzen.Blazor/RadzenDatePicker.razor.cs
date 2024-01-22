@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
-
 using Radzen.Blazor.Rendering;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -25,6 +23,21 @@ namespace Radzen.Blazor
     /// </example>
     public partial class RadzenDatePicker<TValue> : RadzenComponent, IRadzenFormComponent
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether calendar week will be shown.
+        /// </summary>
+        /// <value><c>true</c> if calendar week is shown; otherwise, <c>false</c>.</value>
+
+        [Parameter]
+        public bool ShowCalendarWeek { get; set; }
+
+        /// <summary>
+        /// Gets or sets the previous month aria label text.
+        /// </summary>
+        /// <value>The previous month aria label text.</value>
+        [Parameter]
+        public string CalendarWeekTitle { get; set; } = "#";
+
         /// <summary>
         /// Gets or sets the previous month aria label text.
         /// </summary>
@@ -175,7 +188,7 @@ namespace Radzen.Blazor
                 await popup.CloseAsync(Element);
             }
 
-            if (Min.HasValue && CurrentDate < Min.Value || Max.HasValue && CurrentDate > Max.Value)
+            if(Min.HasValue && CurrentDate < Min.Value || Max.HasValue && CurrentDate > Max.Value)
             {
                 return;
             }
@@ -1066,6 +1079,9 @@ namespace Radzen.Blazor
             if (PopupRenderMode == PopupRenderMode.OnDemand && !Disabled && !ReadOnly && !Inline)
             {
                 await popup.ToggleAsync(Element);
+#if NET5_0_OR_GREATER
+                await FocusAsync();
+#endif
             }
         }
 

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-
 using System.Threading.Tasks;
 
 namespace Radzen.Blazor

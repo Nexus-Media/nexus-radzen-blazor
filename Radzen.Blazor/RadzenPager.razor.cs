@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,6 +50,12 @@ namespace Radzen.Blazor
         public string FirstPageAriaLabel { get; set; } = "Go to first page.";
 
         /// <summary>
+        /// Gets or sets the pager's optional previous page button's label text.
+        /// </summary>
+        [Parameter]
+        public string PrevPageLabel { get; set; }
+
+        /// <summary>
         /// Gets or sets the pager's previous page button's title attribute.
         /// </summary>
         [Parameter]
@@ -73,6 +78,12 @@ namespace Radzen.Blazor
         /// </summary>
         [Parameter]
         public string LastPageAriaLabel { get; set; } = "Go to last page.";
+
+        /// <summary>
+        /// Gets or sets the pager's optional next page button's label text.
+        /// </summary>
+        [Parameter]
+        public string NextPageLabel { get; set; }
 
         /// <summary>
         /// Gets or sets the pager's next page button's title attribute.

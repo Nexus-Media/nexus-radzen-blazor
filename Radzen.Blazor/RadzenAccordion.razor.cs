@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -151,9 +150,9 @@ namespace Radzen.Blazor
             {
                 return string.IsNullOrWhiteSpace(item.CollapseAriaLabel) ? "Collapse" : item.CollapseAriaLabel;
             }
-            return string.IsNullOrWhiteSpace(item.ExpandAriaLabel) ? "Expand" : item.ExpandAriaLabel;
+            return string.IsNullOrWhiteSpace(item.ExpandAriaLabel) ? "Expand" : item.ExpandAriaLabel;          
         }
-
+        
         internal async System.Threading.Tasks.Task SelectItem(RadzenAccordionItem item, bool? value = null)
         {
             await CollapseAll(item);

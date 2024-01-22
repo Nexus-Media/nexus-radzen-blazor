@@ -42,11 +42,11 @@ namespace Radzen.Blazor.Rendering
             double green;
             double blue;
 
-            if (saturation == 0)
+            if (saturation == 0) 
             {
                 red = green = blue = value;
-            }
-            else
+            } 
+            else 
             {
                 var i = Convert.ToInt32(Math.Floor(hue));
                 var f = hue - i;
@@ -55,17 +55,17 @@ namespace Radzen.Blazor.Rendering
                 var t = value * (1 - saturation * (1 - f));
                 int mod = i % 6;
 
-                red = new[] { value, q, p, p, t, value }[mod];
-                green = new[] { t, value, value, q, p, p }[mod];
-                blue = new[] { p, p, t, value, value, q }[mod];
+                red = new [] { value, q, p, p, t, value }[mod];
+                green = new [] { t, value, value, q, p, p }[mod];
+                blue = new [] { p, p, t, value, value, q }[mod];
             }
 
-            return new RGB
+            return new RGB 
             {
-                Red = Convert.ToInt32(red * 255),
-                Green = Convert.ToInt32(green * 255),
-                Blue = Convert.ToInt32(blue * 255),
-                Alpha = Alpha
+                Red = Convert.ToInt32(red * 255), 
+                Green = Convert.ToInt32(green * 255), 
+                Blue = Convert.ToInt32(blue * 255), 
+                Alpha = Alpha 
             };
         }
     }

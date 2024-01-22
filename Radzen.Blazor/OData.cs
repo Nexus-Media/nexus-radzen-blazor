@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
+using System.Globalization;
 
 namespace Radzen
 {
@@ -85,7 +85,7 @@ namespace Radzen
 
             var baseType = underlyingType.IsGenericType ? underlyingType.GetGenericArguments().FirstOrDefault() : underlyingType;
 
-            return !baseType.IsPrimitive && !typeof(IEnumerable<>).IsAssignableFrom(baseType) &&
+            return !baseType.IsPrimitive && !typeof(IEnumerable<>).IsAssignableFrom(baseType) && 
                 type != typeof(string) && type != typeof(decimal) && type.IsClass;
         }
 
@@ -112,7 +112,7 @@ namespace Radzen
             {
                 options = new JsonSerializerOptions();
             }
-
+           
             var complexProperties = typeof(TValue).GetProperties().Where(p => IsComplex(p.PropertyType) || IsEnumerable(p.PropertyType));
             var dateProperties = typeof(TValue).GetProperties().Where(p => p.PropertyType == typeof(DateTime) || p.PropertyType == typeof(DateTime?));
             if (complexProperties.Any() || dateProperties.Any())

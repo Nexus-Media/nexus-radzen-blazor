@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 
 namespace Radzen.Blazor
 {
@@ -89,10 +88,7 @@ namespace Radzen.Blazor
         /// AutoCompleteType parameter is "off". When the AutoComplete
         /// parameter is true, the value is <c>on</c> or, if set, the value of
         /// AutoCompleteType.</value>
-        public string AutoCompleteAttribute
-        {
-            get => !AutoComplete ? "off" :
-                AutoCompleteType.GetAutoCompleteValue();
-        }
+        public string AutoCompleteAttribute { get => !AutoComplete ? "off" :
+                AutoCompleteType.GetAutoCompleteValue(); }
     }
 }

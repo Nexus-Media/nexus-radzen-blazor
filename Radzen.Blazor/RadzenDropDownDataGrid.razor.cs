@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -259,19 +258,19 @@ namespace Radzen.Blazor
         /// </summary>
         [Parameter]
         public string NextPageAriaLabel { get; set; } = "Go to next page.";
-
+        
         /// <summary>
         /// Gets or sets the pager's numeric page number buttons' title attributes.
         /// </summary>
         [Parameter]
         public string PageTitleFormat { get; set; } = "Page {0}";
-
+        
         /// <summary>
         /// Gets or sets the pager's numeric page number buttons' aria-label attributes.
         /// </summary>
         [Parameter]
         public string PageAriaLabelFormat { get; set; } = "Go to page {0}.";
-
+        
         /// <summary>
         /// Gets or sets the empty text.
         /// </summary>
@@ -354,8 +353,8 @@ namespace Radzen.Blazor
         protected override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
-            {
-                if (Visible && LoadData.HasDelegate && Data == null)
+            {          
+                if(Visible && LoadData.HasDelegate && Data == null)
                 {
                     LoadData.InvokeAsync(new Radzen.LoadDataArgs() { Skip = 0, Top = PageSize, Filter = searchText });
                 }
@@ -453,7 +452,7 @@ namespace Radzen.Blazor
                         {
                             query = query.Where(string.Join(" || ", grid.ColumnsCollection.Where(c => c.Filterable && IsColumnFilterPropertyTypeString(c))
                                 .Select(c => GetPropertyFilterExpression(c.GetFilterProperty(), filterCaseSensitivityOperator))),
-                                    FilterCaseSensitivity == FilterCaseSensitivity.CaseInsensitive ? searchText.ToLower() : searchText);
+                                    FilterCaseSensitivity == FilterCaseSensitivity.CaseInsensitive ? searchText.ToLower() : searchText);                            
                         }
                     }
                     else
@@ -697,9 +696,9 @@ namespace Radzen.Blazor
 #if NET5_0_OR_GREATER
             if (IsVirtualizationAllowed() && grid != null)
             {
-                if (string.IsNullOrEmpty(searchText))
+                if(string.IsNullOrEmpty(searchText))
                 {
-                    if (LoadData.HasDelegate)
+                    if(LoadData.HasDelegate)
                     {
                         Data = null;
                         await grid.Reload();
@@ -717,7 +716,7 @@ namespace Radzen.Blazor
                 }
                 else
                 {
-                    if (grid.LoadData.HasDelegate)
+                    if(grid.LoadData.HasDelegate)
                     {
                         await grid.InvokeLoadData(0, PageSize);
                     }
@@ -796,11 +795,13 @@ namespace Radzen.Blazor
                 await JSRuntime.InvokeVoidAsync("Radzen.closePopup", PopupID);
             }
 
+            await JSRuntime.InvokeVoidAsync("Radzen.focusElement", UniqueID);
+
             if (AllowRowSelectOnRowClick)
             {
                 await SelectItem(item);
             }
-
+            
         }
 
         private async Task OnChipRemove(object item)

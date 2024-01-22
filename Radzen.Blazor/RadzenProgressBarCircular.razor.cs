@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-
 using System.Collections.Generic;
 
 namespace Radzen.Blazor
@@ -17,7 +16,7 @@ namespace Radzen.Blazor
         /// <inheritdoc />
         protected override string GetComponentCssClass()
         {
-            var classList = new List<string>()
+            var classList=new List<string>()
             {
                 "rz-progressbar-circular"
             };
@@ -65,4 +64,4 @@ namespace Radzen.Blazor
         [Parameter]
         public ProgressBarCircularSize Size { get; set; } = ProgressBarCircularSize.Medium;
     }
-}
+} 
