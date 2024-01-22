@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components;
+
 using Radzen.Blazor.Rendering;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -146,7 +148,7 @@ namespace Radzen.Blazor
 
         private IPathGenerator GetPathGenerator()
         {
-            switch(Interpolation)
+            switch (Interpolation)
             {
                 case Interpolation.Line:
                     return new LineGenerator();

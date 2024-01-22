@@ -1,10 +1,12 @@
-using Microsoft.JSInterop;
-using Radzen.Blazor.Rendering;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+
+using Radzen.Blazor.Rendering;
+
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Radzen.Blazor
 {
@@ -309,7 +311,7 @@ namespace Radzen.Blazor
                         if (squaredDistance < closestSeriesDistanceSquared)
                         {
                             closestSeries = series;
-                            closestSeriesData = seriesData; 
+                            closestSeriesData = seriesData;
                             closestSeriesDistanceSquared = squaredDistance;
                         }
                     }
@@ -360,7 +362,7 @@ namespace Radzen.Blazor
                             if (squaredDistance < closestSeriesDistanceSquared)
                             {
                                 closestSeries = series;
-                                closestSeriesData = seriesData; 
+                                closestSeriesData = seriesData;
                                 closestSeriesDistanceSquared = squaredDistance;
                             }
                         }
@@ -370,7 +372,7 @@ namespace Radzen.Blazor
                 if (closestSeriesData != null)
                 {
                     if (closestSeriesData != tooltipData)
-                    { 
+                    {
                         tooltipData = closestSeriesData;
                         tooltip = closestSeries.RenderTooltip(closestSeriesData, MarginLeft, MarginTop, Height ?? 0);
                         chartTooltipContainer.Refresh();

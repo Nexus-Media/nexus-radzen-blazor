@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+
 using System.Collections.Generic;
 
 namespace Radzen.Blazor
@@ -59,7 +60,7 @@ namespace Radzen.Blazor
         [Parameter]
         public Variant Variant { get; set; } = Variant.Filled;
 
-         /// <summary>
+        /// <summary>
         /// Gets or sets the badge shade color.
         /// </summary>
         /// <value>The badge shade color.</value>

@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -299,10 +297,10 @@ namespace Radzen.Blazor
             if (PropertyAccess.IsNullableEnum(FilterPropertyType))
                 return new FilterOperator[] { FilterOperator.Equals, FilterOperator.NotEquals, FilterOperator.IsNull, FilterOperator.IsNotNull };
 
-            if ((typeof(IEnumerable).IsAssignableFrom(FilterPropertyType) || typeof(IEnumerable<>).IsAssignableFrom(FilterPropertyType)) 
+            if ((typeof(IEnumerable).IsAssignableFrom(FilterPropertyType) || typeof(IEnumerable<>).IsAssignableFrom(FilterPropertyType))
                 && FilterPropertyType != typeof(string))
             {
-                var operators = new FilterOperator[] 
+                return new FilterOperator[]
                 {
                     FilterOperator.Contains,
                     FilterOperator.DoesNotContain,
@@ -313,20 +311,10 @@ namespace Radzen.Blazor
                     FilterOperator.IsEmpty,
                     FilterOperator.IsNotEmpty
                 };
-
-                if (!string.IsNullOrEmpty(Property))
-                {
-                    var type = PropertyAccess.GetPropertyType(typeof(TItem), Property);
-                    if ((typeof(IEnumerable).IsAssignableFrom(type) || typeof(IEnumerable<>).IsAssignableFrom(type)) && type != typeof(string))
-                    {
-                        operators = operators.Concat(new FilterOperator[] { FilterOperator.In, FilterOperator.NotIn }).ToArray();
-                    }
-                }
-
-                return operators;
             }
 
-            return Enum.GetValues(typeof(FilterOperator)).Cast<FilterOperator>().Where(o => o != FilterOperator.In && o != FilterOperator.NotIn).Where(o => {
+            return Enum.GetValues(typeof(FilterOperator)).Cast<FilterOperator>().Where(o => o != FilterOperator.In && o != FilterOperator.NotIn).Where(o =>
+            {
                 var isStringOperator = o == FilterOperator.Contains || o == FilterOperator.DoesNotContain
                     || o == FilterOperator.StartsWith || o == FilterOperator.EndsWith || o == FilterOperator.IsEmpty || o == FilterOperator.IsNotEmpty;
                 return FilterPropertyType == typeof(string) ? isStringOperator

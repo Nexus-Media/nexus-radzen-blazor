@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -496,7 +497,8 @@ namespace Radzen.Blazor
                 var visibleColumns = Grid.ColumnsCollection.Where(c => c.GetVisible()).ToList();
                 var left = visibleColumns
                     .Where((c, i) => visibleColumns.IndexOf(this) > i && c.IsFrozen())
-                    .Sum(c => {
+                    .Sum(c =>
+                    {
                         var w = !string.IsNullOrEmpty(c.GetWidth()) ? c.GetWidth() : Grid.ColumnWidth;
                         var cw = 200;
                         if (!string.IsNullOrEmpty(w) && w.Contains("px"))
@@ -845,7 +847,7 @@ namespace Radzen.Blazor
         {
             return GetFilterOperator() == FilterOperator.IsNull
                     || GetFilterOperator() == FilterOperator.IsNotNull
-                    ||  GetFilterOperator() == FilterOperator.IsEmpty
+                    || GetFilterOperator() == FilterOperator.IsEmpty
                     || GetFilterOperator() == FilterOperator.IsNotEmpty;
         }
 
@@ -957,8 +959,9 @@ namespace Radzen.Blazor
             if (PropertyAccess.IsNullableEnum(FilterPropertyType))
                 return new FilterOperator[] { FilterOperator.Equals, FilterOperator.NotEquals, FilterOperator.IsNull, FilterOperator.IsNotNull };
 
-            return Enum.GetValues(typeof(FilterOperator)).Cast<FilterOperator>().Where(o => {
-                var isStringOperator = o == FilterOperator.Contains ||  o == FilterOperator.DoesNotContain
+            return Enum.GetValues(typeof(FilterOperator)).Cast<FilterOperator>().Where(o =>
+            {
+                var isStringOperator = o == FilterOperator.Contains || o == FilterOperator.DoesNotContain
                     || o == FilterOperator.StartsWith || o == FilterOperator.EndsWith || o == FilterOperator.IsEmpty || o == FilterOperator.IsNotEmpty;
                 return FilterPropertyType == typeof(string) ? isStringOperator
                       || o == FilterOperator.Equals || o == FilterOperator.NotEquals
@@ -981,7 +984,7 @@ namespace Radzen.Blazor
                     return Grid?.EqualsText;
                 case FilterOperator.GreaterThan:
                     return Grid?.GreaterThanText;
-                case FilterOperator. GreaterThanOrEquals:
+                case FilterOperator.GreaterThanOrEquals:
                     return Grid?.GreaterThanOrEqualsText;
                 case FilterOperator.LessThan:
                     return Grid?.LessThanText;

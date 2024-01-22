@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 
 namespace Radzen.Blazor
 {
@@ -204,7 +203,7 @@ namespace Radzen.Blazor
                 .Where(p => breakPoints.Any(bp => p.Name.ToLower().EndsWith(bp)))
                 .Select(p => new { p.Name, BreakPoint = string.Concat(p.Name.ToLower().TakeLast(2)), Value = p.GetValue(this) });
 
-            foreach (var p in properties) 
+            foreach (var p in properties)
             {
                 if (p.Value != null)
                 {
@@ -232,7 +231,7 @@ namespace Radzen.Blazor
 
         string GetOrderValue(string name, string value)
         {
-            var orders = Enumerable.Range(0, 12).Select(i => $"{i}").ToArray().Concat(new string[] { "first", "last" }); 
+            var orders = Enumerable.Range(0, 12).Select(i => $"{i}").ToArray().Concat(new string[] { "first", "last" });
 
             if (!orders.Contains(value))
             {

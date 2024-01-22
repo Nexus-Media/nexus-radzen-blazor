@@ -1,6 +1,6 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Radzen.Blazor
 {
@@ -83,8 +83,8 @@ namespace Radzen.Blazor
         /// <param name="range">The range.</param>
         public void MergeWidth(ScaleRange range)
         {
-          Start = Math.Min(Start, range.Start);
-          End = Math.Max(End, range.End);
+            Start = Math.Min(Start, range.Start);
+            End = Math.Max(End, range.End);
         }
 
         /// <summary>

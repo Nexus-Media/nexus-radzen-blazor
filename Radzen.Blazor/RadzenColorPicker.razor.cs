@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components;
+
 using Radzen.Blazor.Rendering;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -160,7 +162,8 @@ namespace Radzen.Blazor
 
         void UpdateColorUsingHsvHandles()
         {
-            var hsv = new HSV {
+            var hsv = new HSV
+            {
                 Hue = HueHandleLeft,
                 Saturation = SaturationHandleLeft,
                 Value = 1 - SaturationHandleTop,

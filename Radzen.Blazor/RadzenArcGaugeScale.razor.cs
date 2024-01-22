@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components;
+
 using Radzen.Blazor.Rendering;
+
 using System;
 
 namespace Radzen.Blazor
@@ -7,7 +9,7 @@ namespace Radzen.Blazor
     /// <summary>
     /// RadzenArcGaugeScale component.
     /// </summary>
-    public partial class RadzenArcGaugeScale: ComponentBase
+    public partial class RadzenArcGaugeScale : ComponentBase
     {
         /// <summary>
         /// Gets or sets the gauge.

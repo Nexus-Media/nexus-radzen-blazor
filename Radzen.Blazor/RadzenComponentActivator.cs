@@ -1,6 +1,7 @@
+using Microsoft.AspNetCore.Components;
+
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
 
 #if NET5_0_OR_GREATER
 namespace Radzen

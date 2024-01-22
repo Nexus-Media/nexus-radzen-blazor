@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
+
 using Radzen.Blazor.Rendering;
+
+using System.Threading.Tasks;
 
 namespace Radzen.Blazor
 {

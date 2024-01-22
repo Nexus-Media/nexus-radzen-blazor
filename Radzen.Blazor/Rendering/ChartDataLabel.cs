@@ -1,10 +1,10 @@
-namespace  Radzen.Blazor.Rendering
+namespace Radzen.Blazor.Rendering
 {
     /// <summary>
     /// Represents a data label in RadzenChart.
     /// </summary>
-   public class ChartDataLabel 
-   {
+    public class ChartDataLabel
+    {
         /// <summary>
         /// The position of the label.
         /// </summary>
@@ -17,5 +17,5 @@ namespace  Radzen.Blazor.Rendering
         /// The text anchor of the label.
         /// </summary>
         public string TextAnchor { get; set; }
-   }
+    }
 }

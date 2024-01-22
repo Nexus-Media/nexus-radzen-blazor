@@ -1,15 +1,17 @@
-﻿using Radzen;
-using Radzen.Blazor.Rendering;
-using System.Collections;
-using System.Linq.Dynamic.Core;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using System.Linq;
+using Microsoft.JSInterop;
+
+using Radzen;
+using Radzen.Blazor.Rendering;
+
 using System;
-using System.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 
 namespace Radzen.Blazor
 {
@@ -74,12 +76,6 @@ namespace Radzen.Blazor
         /// <value>The input type.</value>
         [Parameter]
         public string InputType { get; set; } = "text";
-
-        /// <summary>
-        /// Gets or sets the underlying max length.
-        /// </summary>
-        /// <value>The max length value.</value>
-        public long? MaxLength { get; set; }
 
         /// <summary>
         /// Gets search input reference.

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -250,7 +251,7 @@ namespace Radzen.Blazor
                         else
                         {
                             builder.AddAttribute(7, "ChildContent", (RenderFragment)null);
-						}
+                        }
                     }
 
                     builder.CloseComponent();
@@ -322,16 +323,13 @@ namespace Radzen.Blazor
 
                 if (AllowCheckBoxes && AllowCheckChildren && args.Children.Data != null)
                 {
-                    if (CheckedValues != null)
+                    if (CheckedValues != null && CheckedValues.Contains(item.Value))
                     {
-                        if (CheckedValues.Contains(item.Value))
-                        {
-                            await SetCheckedValues(CheckedValues.Union(args.Children.Data.Cast<object>().Except(UncheckedValues)));
-                        }
-                        else
-                        {
-                            await SetCheckedValues(CheckedValues.Except(args.Children.Data.Cast<object>()));
-                        }
+                        await SetCheckedValues(CheckedValues.Union(args.Children.Data.Cast<object>().Except(UncheckedValues)));
+                    }
+                    else
+                    {
+                        await SetCheckedValues(CheckedValues.Except(args.Children.Data.Cast<object>()));
                     }
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -179,7 +180,7 @@ namespace Radzen.Blazor
             {
                 positionCSS = "rz-tabview-left";
             }
-            else if(TabPosition == TabPosition.TopRight)
+            else if (TabPosition == TabPosition.TopRight)
             {
                 positionCSS = "rz-tabview-top rz-tabview-top-right";
             }

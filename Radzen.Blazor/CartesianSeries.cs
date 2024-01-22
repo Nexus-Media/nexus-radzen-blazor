@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Components;
+
+using Radzen.Blazor.Rendering;
+
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using Radzen.Blazor.Rendering;
 using System.Threading.Tasks;
-using System.Collections;
-using Microsoft.AspNetCore.Components.Rendering;
 
 namespace Radzen.Blazor
 {
@@ -698,7 +698,7 @@ namespace Radzen.Blazor
                 }).Aggregate((a, b) => a.Distance < b.Distance ? a : b).Item;
 
                 return (retObject,
-                    new Point() { X = TooltipX(retObject), Y = TooltipY(retObject)});
+                    new Point() { X = TooltipX(retObject), Y = TooltipY(retObject) });
             }
 
             return (null, null);

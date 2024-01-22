@@ -1,9 +1,9 @@
-using System;
-using System.Collections;
+using Microsoft.AspNetCore.Components;
+
+using Radzen.Blazor.Rendering;
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Radzen.Blazor.Rendering;
 
 namespace Radzen.Blazor
 {
@@ -125,7 +125,7 @@ namespace Radzen.Blazor
         /// <summary>
         /// Series overlays
         /// </summary>
-        IList<IChartSeriesOverlay> Overlays{ get; }
+        IList<IChartSeriesOverlay> Overlays { get; }
         /// <summary>
         /// Gets or sets the title of the series. The title is displayed in tooltips and the legend.
         /// </summary>

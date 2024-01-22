@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.Web;
+
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Radzen.Blazor
@@ -153,7 +153,7 @@ namespace Radzen.Blazor
         }
 
         string getIconStyle()
-        { 
+        {
             return $"{(Parent?.DisplayStyle == MenuItemDisplayStyle.Icon ? "margin-right:0px;" : "")}{(!string.IsNullOrEmpty(IconColor) ? $"color:{IconColor}" : "")}";
         }
 
