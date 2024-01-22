@@ -92,6 +92,7 @@ namespace Radzen.Blazor
         }
 
         string lastLoadDataArgs;
+        Task lastLoadDataTask = Task.CompletedTask;
         private async ValueTask<Microsoft.AspNetCore.Components.Web.Virtualization.ItemsProviderResult<TItem>> LoadItems(Microsoft.AspNetCore.Components.Web.Virtualization.ItemsProviderRequest request)
         {
             var view = AllowPaging ? PagedView : View;
@@ -108,9 +109,9 @@ namespace Radzen.Blazor
 
             if (lastLoadDataArgs != loadDataArgs)
             {
-                lastLoadDataArgs = loadDataArgs;
+                await (lastLoadDataTask = InvokeLoadData(request.StartIndex, top));
 
-                await InvokeLoadData(request.StartIndex, top);
+                lastLoadDataArgs = loadDataArgs;
             }
 
             var totalItemsCount = LoadData.HasDelegate ? Count : view.Count();
@@ -831,6 +832,13 @@ namespace Radzen.Blazor
         {
             if (AllowSorting && column.Sortable)
             {
+                if (GotoFirstPageOnSort)
+                {
+                    topPager?.FirstPage();
+                    bottomPager?.FirstPage();
+                    CurrentPage = 0;
+                }
+
                 var property = column.GetSortProperty();
                 if (!string.IsNullOrEmpty(property))
                 {
@@ -2456,6 +2464,12 @@ namespace Radzen.Blazor
         {
             return column.Columns != null || column.Parent != null;
         }
+
+        /// <summary>
+        /// Gets or sets the ability to automatically goto the first page when sorting is changed.
+        /// </summary>
+        [Parameter]
+        public bool GotoFirstPageOnSort { get; set; } = false;
 
         internal string getCompositeCellCSSClass(RadzenDataGridColumn<TItem> column)
         {
