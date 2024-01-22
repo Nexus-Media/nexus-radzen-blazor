@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Components;
+
+using Radzen.Blazor;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Radzen.Blazor;
 
 namespace Radzen
 {
@@ -55,7 +57,7 @@ namespace Radzen
         /// </summary>
         /// <value>The size of the page.</value>
         [Parameter]
-        public int PageSize 
+        public int PageSize
         {
             get
             {
@@ -179,7 +181,7 @@ namespace Radzen
         /// <value>The page size description text.</value>
         [Parameter]
         public string PageSizeText { get; set; } = "items per page";
-        
+
         /// <summary>
         /// Gets or sets the pager summary visibility.
         /// </summary>
@@ -207,12 +209,6 @@ namespace Radzen
         public string FirstPageAriaLabel { get; set; } = "Go to first page.";
 
         /// <summary>
-        /// Gets or sets the pager's optional previous page button's label text.
-        /// </summary>
-        [Parameter]
-        public string PrevPageLabel { get; set; }
-
-        /// <summary>
         /// Gets or sets the pager's previous page button's title attribute.
         /// </summary>
         [Parameter]
@@ -237,12 +233,6 @@ namespace Radzen
         public string LastPageAriaLabel { get; set; } = "Go to last page.";
 
         /// <summary>
-        /// Gets or sets the pager's optional next page button's label text.
-        /// </summary>
-        [Parameter]
-        public string NextPageLabel { get; set; }
-
-        /// <summary>
         /// Gets or sets the pager's next page button's title attribute.
         /// </summary>
         [Parameter]
@@ -253,19 +243,19 @@ namespace Radzen
         /// </summary>
         [Parameter]
         public string NextPageAriaLabel { get; set; } = "Go to next page.";
-        
+
         /// <summary>
         /// Gets or sets the pager's numeric page number buttons' title attributes.
         /// </summary>
         [Parameter]
         public string PageTitleFormat { get; set; } = "Page {0}";
-        
+
         /// <summary>
         /// Gets or sets the pager's numeric page number buttons' aria-label attributes.
         /// </summary>
         [Parameter]
         public string PageAriaLabelFormat { get; set; } = "Go to page {0}.";
-        
+
         internal IQueryable<T> _view = null;
         /// <summary>
         /// Gets the paged view.
@@ -346,7 +336,7 @@ namespace Radzen
 
             if (pageSizeChanged && !firstRender)
             {
-               await InvokeAsync(Reload);
+                await InvokeAsync(Reload);
             }
         }
 

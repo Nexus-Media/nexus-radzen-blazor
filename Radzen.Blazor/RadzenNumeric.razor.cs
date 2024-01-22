@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -83,18 +83,18 @@ namespace Radzen.Blazor
                 return;
             }
 
-            var step = decimal.TryParse(Step?.Replace(",", "."), out var stepVal) ? stepVal : 1;
+            var step = string.IsNullOrEmpty(Step) || Step == "any" ? 1 : double.Parse(Step.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture);
 
-            var valueToUpdate = ConvertToDecimal(Value);
+            var valueToUpdate = Value != null ? Convert.ChangeType(Value, typeof(decimal)) : (decimal)Convert.ChangeType(default(decimal), typeof(decimal));
 
-            var newValue = valueToUpdate + (stepUp ? step : -step);
+            var newValue = ((decimal)Convert.ChangeType(valueToUpdate, typeof(decimal))) + (decimal)Convert.ChangeType(stepUp ? step : -step, typeof(decimal));
 
             if (Max.HasValue && newValue > Max.Value || Min.HasValue && newValue < Min.Value || object.Equals(Value, newValue))
             {
                 return;
             }
 
-            Value = ConvertFromDecimal(newValue);
+            Value = (TValue)ConvertType.ChangeType(newValue, typeof(TValue));
 
             await ValueChanged.InvokeAsync(Value);
             if (FieldIdentifier.FieldName != null) { EditContext?.NotifyFieldChanged(FieldIdentifier); }
@@ -135,11 +135,7 @@ namespace Radzen.Blazor
                 {
                     if (Format != null)
                     {
-                        if (Value is IFormattable formattable)
-                        {
-                            return formattable.ToString(Format, Culture);
-                        }
-                        decimal decimalValue = ConvertToDecimal(Value);
+                        decimal decimalValue = (decimal)Convert.ChangeType(Value, typeof(decimal));
                         return decimalValue.ToString(Format, Culture);
                     }
                     return Value.ToString();
@@ -273,7 +269,7 @@ namespace Radzen.Blazor
             if (!string.IsNullOrEmpty(Format))
             {
                 string formattedStringWithoutPlaceholder = Format.Replace("#", "").Trim();
-                
+
                 if (valueStr.Contains(Format))
                 {
                     string currencyDecimalSeparator = Culture.NumberFormat.CurrencyDecimalSeparator;
@@ -283,7 +279,7 @@ namespace Radzen.Blazor
                     int lengthDifference = splitValueString[0].Length - splitFormatString[0].Length;
                     formattedStringWithoutPlaceholder = formattedStringWithoutPlaceholder.PadLeft(formattedStringWithoutPlaceholder.Length + lengthDifference, '0');
                 }
-                
+
                 valueStr = valueStr.Replace(formattedStringWithoutPlaceholder, "");
             }
 
@@ -301,11 +297,7 @@ namespace Radzen.Blazor
             TValue newValue;
             try
             {
-                if (value is TValue typedValue)
-                {
-                    newValue = typedValue;
-                }
-                else if (ConvertValue != null)
+                if (ConvertValue != null)
                 {
                     newValue = ConvertValue($"{value}");
                 }
@@ -319,15 +311,33 @@ namespace Radzen.Blazor
                 newValue = default(TValue);
             }
 
-            newValue = ApplyMinMax(newValue);
+            decimal? newValueAsDecimal;
+            try
+            {
+                newValueAsDecimal = newValue == null ? default(decimal?) : (decimal)ConvertType.ChangeType(newValue, typeof(decimal));
+            }
+            catch
+            {
+                newValueAsDecimal = default(TValue) == null ? default(decimal?) : (decimal)ConvertType.ChangeType(default(TValue), typeof(decimal));
+            }
 
-            if (EqualityComparer<TValue>.Default.Equals(Value, newValue))
+            if (object.Equals(Value, newValue) && (!ValueChanged.HasDelegate || !string.IsNullOrEmpty(Format)))
             {
                 await JSRuntime.InvokeAsync<string>("Radzen.setInputValue", input, FormattedValue);
                 return;
             }
 
-            Value = newValue;
+            if (Max.HasValue && newValueAsDecimal > Max.Value)
+            {
+                newValueAsDecimal = Max.Value;
+            }
+
+            if (Min.HasValue && newValueAsDecimal < Min.Value)
+            {
+                newValueAsDecimal = Min.Value;
+            }
+
+            Value = (TValue)ConvertType.ChangeType(newValueAsDecimal, typeof(TValue));
             if (!ValueChanged.HasDelegate)
             {
                 await JSRuntime.InvokeAsync<string>("Radzen.setInputValue", input, FormattedValue);
@@ -336,70 +346,6 @@ namespace Radzen.Blazor
             await ValueChanged.InvokeAsync(Value);
             if (FieldIdentifier.FieldName != null) { EditContext?.NotifyFieldChanged(FieldIdentifier); }
             await Change.InvokeAsync(Value);
-        }
-        
-        private TValue ApplyMinMax(TValue newValue)
-        {
-            if (Max == null && Min == null)
-            {
-                return newValue;
-            }
-
-            if (newValue is IComparable<decimal> c)
-            {
-                if (Max.HasValue && c.CompareTo(Max.Value) > 0)
-                    return ConvertFromDecimal(Max.Value);
-                if (Min.HasValue && c.CompareTo(Min.Value) < 0)
-                    return ConvertFromDecimal(Min.Value);
-                return newValue;
-            }
-
-            decimal? newValueAsDecimal;
-            try
-            {
-                newValueAsDecimal = ConvertToDecimal(newValue);
-            }
-            catch
-            {
-                newValueAsDecimal = default;
-            }
-
-            if (newValueAsDecimal > Max)
-            {
-                newValueAsDecimal = Max.Value;
-            }
-
-            if (newValueAsDecimal < Min)
-            {
-                newValueAsDecimal = Min.Value;
-            }
-            return ConvertFromDecimal(newValueAsDecimal);
-        }
-
-        private decimal ConvertToDecimal(TValue input)
-        {
-            if (input == null)
-                return default;
-
-            var converter = TypeDescriptor.GetConverter(typeof(TValue));
-            if (converter.CanConvertTo(typeof(decimal)))
-                return (decimal)converter.ConvertTo(null, Culture, input, typeof(decimal));
-            
-            return (decimal)ConvertType.ChangeType(input, typeof(decimal));
-        }
-
-        private TValue ConvertFromDecimal(decimal? input)
-        {
-            if (input == null)
-                return default;
-
-            var converter = TypeDescriptor.GetConverter(typeof(TValue));
-            if (converter.CanConvertFrom(typeof(decimal)))
-            {
-                return (TValue)converter.ConvertFrom(null, Culture, input);
-            }
-            
-            return (TValue)ConvertType.ChangeType(input, typeof(TValue));
         }
 
         /// <summary>
@@ -424,14 +370,22 @@ namespace Radzen.Blazor
 
             await base.SetParametersAsync(parameters);
 
-            if (minChanged && IsJSRuntimeAvailable)
+            if (minChanged && Min.HasValue && Value != null && IsJSRuntimeAvailable)
             {
-                await InternalValueChanged(Value);
+                decimal decimalValue = (decimal)Convert.ChangeType(Value, typeof(decimal));
+                if (decimalValue < Min.Value)
+                {
+                    await InternalValueChanged(Min.Value);
+                }
             }
 
-            if (maxChanged && IsJSRuntimeAvailable)
+            if (maxChanged && Max.HasValue && Value != null && IsJSRuntimeAvailable)
             {
-                await InternalValueChanged(Value);
+                decimal decimalValue = (decimal)Convert.ChangeType(Value, typeof(decimal));
+                if (decimalValue > Max.Value)
+                {
+                    await InternalValueChanged(Max.Value);
+                }
             }
         }
 

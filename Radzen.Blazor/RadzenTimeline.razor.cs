@@ -1,6 +1,6 @@
-using System;
-using Radzen.Blazor.Rendering;
 using Microsoft.AspNetCore.Components;
+
+using Radzen.Blazor.Rendering;
 
 namespace Radzen.Blazor
 {

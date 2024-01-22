@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Radzen.Blazor
 {

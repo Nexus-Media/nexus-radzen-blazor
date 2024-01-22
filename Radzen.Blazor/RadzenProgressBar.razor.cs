@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+
 using System;
 using System.Collections.Generic;
 
@@ -31,7 +32,7 @@ namespace Radzen.Blazor
                     classList.Add("rz-progressbar-indeterminate");
                     break;
             }
-            
+
             classList.Add($"rz-progressbar-{ProgressBarStyle.ToString().ToLowerInvariant()}");
 
             return string.Join(" ", classList);

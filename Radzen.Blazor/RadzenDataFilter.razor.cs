@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -265,7 +265,7 @@ namespace Radzen.Blazor
         /// <value><c>true</c> if columns can be filtered; otherwise, <c>false</c>.</value>
         [Parameter]
         public bool AllowColumnFiltering { get; set; }
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether properties can be reused in the filter.
         /// </summary>
@@ -284,7 +284,7 @@ namespace Radzen.Blazor
                 return properties;
             }
         }
-        
+
         internal List<RadzenDataFilterProperty<TItem>> properties = new List<RadzenDataFilterProperty<TItem>>();
         internal void AddProperty(RadzenDataFilterProperty<TItem> property)
         {
@@ -372,9 +372,9 @@ namespace Radzen.Blazor
         public async Task ClearFilters()
         {
             Filters = Enumerable.Empty<CompositeFilterDescriptor>();
-            
+
             properties.ForEach(p => p.IsSelected = false);
-            
+
             if (Auto)
             {
                 await Filter();

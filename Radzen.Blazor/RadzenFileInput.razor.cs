@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+
 using Radzen.Blazor.Rendering;
+
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Radzen.Blazor
 {
@@ -160,7 +162,7 @@ namespace Radzen.Blazor
 
                 if (Visible)
                 {
-                    await JSRuntime.InvokeVoidAsync("Radzen.uploads", Reference, Name ?? GetId());
+                    await JSRuntime.InvokeVoidAsync("Radzen.uploads", Reference, GetId());
                 }
             }
         }

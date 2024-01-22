@@ -1,6 +1,7 @@
+using Radzen.Blazor;
+
 using System;
 using System.Collections.Generic;
-using Radzen.Blazor;
 
 namespace Radzen
 {
@@ -24,6 +25,6 @@ namespace Radzen
         /// <summary>
         /// The current view.
         /// </summary>
-        public ISchedulerView View { get; set;}
+        public ISchedulerView View { get; set; }
     }
 }

@@ -1,6 +1,8 @@
-﻿using System;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
+
 using Radzen.Blazor.Rendering;
+
+using System;
 
 namespace Radzen.Blazor
 {
@@ -126,12 +128,12 @@ namespace Radzen.Blazor
                     break;
             }
 
-            return builder => 
+            return builder =>
             {
                 builder.OpenElement(0, "g");
                 builder.OpenComponent<Text>(1);
                 builder.AddAttribute(2, "Value", Text);
-                builder.AddAttribute(3, "Position", new Point{ X = x, Y = y });
+                builder.AddAttribute(3, "Position", new Point { X = x, Y = y });
                 builder.AddAttribute(4, "TextAnchor", textAnchor);
                 builder.SetKey($"{Text}-{Chart.Series.IndexOf(series)}");
                 builder.CloseComponent();

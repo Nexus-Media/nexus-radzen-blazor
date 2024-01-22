@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+
 using Radzen.Blazor.Rendering;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -202,7 +204,7 @@ namespace Radzen.Blazor
 
                 if (Visible)
                 {
-                    await JSRuntime.InvokeVoidAsync("Radzen.uploads", Reference, Name ?? GetId());
+                    await JSRuntime.InvokeVoidAsync("Radzen.uploads", Reference, GetId());
                 }
             }
         }
@@ -264,7 +266,7 @@ namespace Radzen.Blazor
         /// </summary>
         public async System.Threading.Tasks.Task ClearFiles()
         {
-            while(files.Count > 0)
+            while (files.Count > 0)
             {
                 await OnRemove(files[0], false);
             }

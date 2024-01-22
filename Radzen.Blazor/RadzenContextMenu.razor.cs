@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,7 +124,7 @@ namespace Radzen.Blazor
         [JSInvokable("RadzenContextMenu.CloseMenu")]
         public void CloseMenu()
         {
-            Service.Close(); 
+            Service.Close();
         }
 
         /// <inheritdoc />
@@ -139,7 +140,7 @@ namespace Radzen.Blazor
 
             if (IsJSRuntimeAvailable)
             {
-                try 
+                try
                 {
                     await JSRuntime.InvokeVoidAsync("Radzen.destroyPopup", UniqueID);
                 }

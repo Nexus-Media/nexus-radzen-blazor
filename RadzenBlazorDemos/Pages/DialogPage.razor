@@ -3,7 +3,7 @@
 <RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
     Dialog
 </RadzenText>
-<RadzenText TextStyle="TextStyle.Subtitle1" class="rz-pb-4">
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
     Demonstration and configuration of the Radzen Blazor Dialog component.
 </RadzenText>
 
@@ -12,7 +12,7 @@
 <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
     Open page as a dialog
 </RadzenText>
-<RadzenExample ComponentName="Dialog" Example="DialogWithPage">
+<RadzenExample ComponentName="Dialog" Example="DialogWithPage" AdditionalSourceCodePages=@(new List<string>() { "DialogCardPage.razor" })>
     <DialogWithPage />
 </RadzenExample>
 

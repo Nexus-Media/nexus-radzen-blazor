@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using Radzen.Blazor;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.Text;
 
 namespace Radzen
 {
@@ -108,7 +104,7 @@ namespace Radzen
         /// Gets or sets the click event.
         /// </summary>
         /// <value>This event handler is called when the notification is clicked on.</value>
-        public Action<NotificationMessage> Click { get; set; } 
+        public Action<NotificationMessage> Click { get; set; }
         /// <summary>
         /// Get or set the event for when the notification is closed
         /// </summary>
@@ -124,6 +120,17 @@ namespace Radzen
         /// <value>Used to store a custom payload that can be retreived later in the click event handler.</value>
         public object Payload { get; set; }
 
+        /// <summary>
+        /// Gets or sets the detail content.
+        /// </summary>
+        /// <value>The detail content.</value>
+        public RenderFragment<NotificationService> DetailContent { get; set; }
+        /// <summary>
+        /// Gets or sets the summary content.
+        /// </summary>
+        /// <value>The summary content.</value>
+        public RenderFragment<NotificationService> SummaryContent { get; set; }
+
 
         #region Implementation of IEquatable<NotificationMessage> and operators overloading
 
@@ -134,19 +141,21 @@ namespace Radzen
         /// <returns></returns>
         public bool Equals(NotificationMessage other)
         {
-            if(other == null) return false;
-            
-            if(object.ReferenceEquals(this, other)) return true;
+            if (other == null) return false;
 
-            return this.Severity == other.Severity 
-                && this.Summary == other.Summary 
-                && this.Detail == other.Detail 
+            if (object.ReferenceEquals(this, other)) return true;
+
+            return this.Severity == other.Severity
+                && this.Summary == other.Summary
+                && this.Detail == other.Detail
                 && this.Duration == other.Duration
                 && this.Style == other.Style
                 && this.Click == other.Click
                 && this.Close == other.Close
                 && this.CloseOnClick == other.CloseOnClick
-                && this.Payload == other.Payload;
+                && this.Payload == other.Payload
+                && this.DetailContent == other.DetailContent
+                && this.SummaryContent == other.SummaryContent;
         }
 
         /// <summary>
@@ -160,7 +169,7 @@ namespace Radzen
         ///  Return a hash code for the current object
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode() => HashCode.Combine(Summary, Detail, Duration, Style, Click, Close, CloseOnClick, Payload);
+        public override int GetHashCode() => (Summary, Detail, Duration, Style, Click, Close, CloseOnClick, Payload, SummaryContent, DetailContent).GetHashCode();
 
         /// <summary>
         /// Overloading == operator for NotificationMessage.

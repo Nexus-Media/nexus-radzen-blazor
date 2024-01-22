@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components;
+
 using Radzen.Blazor.Rendering;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -360,7 +362,7 @@ namespace Radzen.Blazor
         {
             var list = new List<ChartDataLabel>();
 
-            if(Data != null)
+            if (Data != null)
             {
                 foreach (var d in PositiveItems)
                 {

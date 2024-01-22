@@ -1,15 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
+
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Data.Common;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Radzen.Blazor
@@ -68,7 +61,7 @@ namespace Radzen.Blazor
             var view = AllowPaging ? PagedView : View;
             var top = request.Count;
 
-            if(top <= 0)
+            if (top <= 0)
             {
                 top = PageSize;
             }
@@ -78,7 +71,7 @@ namespace Radzen.Blazor
                 Skip = request.StartIndex,
                 Top = top
             });
-            
+
             var totalItemsCount = LoadData.HasDelegate ? Count : view.Count();
 
             var virtualDataItems = (LoadData.HasDelegate ? Data : view.Skip(request.StartIndex).Take(top))?.ToList();
@@ -95,7 +88,7 @@ namespace Radzen.Blazor
                 {
                     builder.OpenComponent(0, typeof(Microsoft.AspNetCore.Components.Web.Virtualization.Virtualize<TItem>));
                     builder.AddAttribute(1, "ItemsProvider", new Microsoft.AspNetCore.Components.Web.Virtualization.ItemsProviderDelegate<TItem>(LoadItems));
-                    
+
                     builder.AddAttribute(2, "ChildContent", (RenderFragment<TItem>)((context) =>
                     {
                         return (RenderFragment)((b) =>

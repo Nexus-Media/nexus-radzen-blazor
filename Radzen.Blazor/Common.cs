@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
+
 using Radzen.Blazor;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Linq.Dynamic.Core.Parser;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -985,21 +986,20 @@ namespace Radzen
     /// <summary>
     /// Specifies the position at which a Radzen Blazor component renders its built-in <see cref="RadzenPager" />.
     /// </summary>
-    [Flags]
     public enum PagerPosition
     {
         /// <summary>
         /// RadzenPager is displayed at the top of the component.
         /// </summary>
-        Top = 1,
+        Top,
         /// <summary>
         /// RadzenPager is displayed at the bottom of the component.
         /// </summary>
-        Bottom = 2,
+        Bottom,
         /// <summary>
         /// RadzenPager is displayed at the top and at the bottom of the component.
         /// </summary>
-        TopAndBottom = Top | Bottom
+        TopAndBottom
     }
 
     /// <summary>
@@ -2576,7 +2576,7 @@ namespace Radzen
                     if (body.Type.IsInterface)
                     {
                         body = Expression.Property(body,
-                            new [] { body.Type }.Concat(body.Type.GetInterfaces()).FirstOrDefault(t => t.GetProperty(member) != null),
+                            new[] { body.Type }.Concat(body.Type.GetInterfaces()).FirstOrDefault(t => t.GetProperty(member) != null),
                             member
                         );
                     }

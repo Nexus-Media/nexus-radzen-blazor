@@ -1,9 +1,11 @@
-using System;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
+
 using Radzen.Blazor.Rendering;
+
+using System;
 
 namespace Radzen.Blazor
 {
@@ -173,7 +175,7 @@ namespace Radzen.Blazor
         /// The horozontal alignment of the text.
         /// </summary>
         [Parameter]
-        public TextAlign TextAlign { get; set;} = TextAlign.Left;
+        public TextAlign TextAlign { get; set; } = TextAlign.Left;
 
         /// <summary>
         /// The tag name of the element that will be rendered. Set to <see cref="TagName.Auto"/> which uses a default tag name depending on the current <see cref="TextStyle" />.

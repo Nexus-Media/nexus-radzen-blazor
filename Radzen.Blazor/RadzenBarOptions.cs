@@ -26,7 +26,7 @@ namespace Radzen.Blazor
         /// </summary>
         /// <value>The pixel height of the bar. By default set to <c>null</c></value>
         [Parameter]
-        public double? Height { get; set;}
+        public double? Height { get; set; }
 
         /// <inheritdoc />
         protected override void Initialize()
@@ -37,7 +37,7 @@ namespace Radzen.Blazor
         /// <inheritdoc />
         protected override bool ShouldRefreshChart(ParameterView parameters)
         {
-            return DidParameterChange(parameters, nameof(Radius), Radius) || 
+            return DidParameterChange(parameters, nameof(Radius), Radius) ||
                    DidParameterChange(parameters, nameof(Height), Height) ||
                    DidParameterChange(parameters, nameof(Margin), Margin);
         }

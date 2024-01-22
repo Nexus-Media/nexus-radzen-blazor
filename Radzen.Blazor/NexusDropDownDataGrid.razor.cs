@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using System;
+
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Data.Common;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text.Json;
 using System.Threading.Tasks;
 namespace Radzen.Blazor
 {
@@ -34,10 +30,10 @@ namespace Radzen.Blazor
         [Parameter]
         public bool Chips { get; set; }
 
-                /// <summary>
-                /// Gets or sets a value indicating whether popup should open on focus. Set to <c>false</c> by default.
-                /// </summary>
-                /// <value><c>true</c> if popup should open on focus; otherwise, <c>false</c>.</value>
+        /// <summary>
+        /// Gets or sets a value indicating whether popup should open on focus. Set to <c>false</c> by default.
+        /// </summary>
+        /// <value><c>true</c> if popup should open on focus; otherwise, <c>false</c>.</value>
         [Parameter]
         public bool OpenOnFocus { get; set; }
 
@@ -295,14 +291,14 @@ namespace Radzen.Blazor
 
             StateHasChanged();
         }
-        
 
-       
+
+
 
         ObservableCollection<GroupDescriptor> groups;
 
 
-       
+
 
 
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Radzen.Blazor
+﻿namespace Radzen.Blazor
 {
     /// <summary>
     /// Represents a Color Range object for passing to PickColor />

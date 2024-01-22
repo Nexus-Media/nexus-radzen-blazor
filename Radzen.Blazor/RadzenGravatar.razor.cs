@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
+
 using System;
-using System.Linq;
 
 namespace Radzen.Blazor
 {

@@ -26,7 +26,7 @@ namespace Radzen.Blazor
         /// </summary>
         /// <value>The pixel width of the column. By default set to <c>null</c></value>
         [Parameter]
-        public double? Width { get; set;}
+        public double? Width { get; set; }
 
         /// <inheritdoc />
         protected override void Initialize()
@@ -37,7 +37,7 @@ namespace Radzen.Blazor
         /// <inheritdoc />
         protected override bool ShouldRefreshChart(ParameterView parameters)
         {
-            return DidParameterChange(parameters, nameof(Radius), Radius) || 
+            return DidParameterChange(parameters, nameof(Radius), Radius) ||
                    DidParameterChange(parameters, nameof(Width), Width) ||
                    DidParameterChange(parameters, nameof(Margin), Margin);
         }
