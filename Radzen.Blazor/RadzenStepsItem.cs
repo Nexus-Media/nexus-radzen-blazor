@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-
 using System.Threading.Tasks;
 
 namespace Radzen.Blazor
@@ -35,12 +34,12 @@ namespace Radzen.Blazor
         /// Gets or sets the title attribute.
         /// </summary>
         public string Title { get; set; } = null;
-
+        
         /// <summary>
         /// Gets or sets the aria-label attribute.
         /// </summary>
         public string AriaLabel { get; set; } = null;
-
+        
         /// <summary>
         /// Gets or sets text of the next button.
         /// </summary>
@@ -51,12 +50,12 @@ namespace Radzen.Blazor
         /// Gets or sets the title attribute of the next button.
         /// </summary>
         public string NextTitle { get; set; } = null;
-
+        
         /// <summary>
         /// Gets or sets the aria-label attribute of the next button.
         /// </summary>
         public string NextAriaLabel { get; set; } = null;
-
+        
         /// <summary>
         /// Gets or sets text of the previous button.
         /// </summary>
@@ -67,12 +66,12 @@ namespace Radzen.Blazor
         /// Gets or sets the title attribute of the previous button.
         /// </summary>
         public string PreviousTitle { get; set; } = null;
-
+        
         /// <summary>
         /// Gets or sets the aria-label attribute of the previous button.
         /// </summary>
         public string PreviousAriaLabel { get; set; } = null;
-
+        
         /// <summary>
         /// Gets or sets the template.
         /// </summary>

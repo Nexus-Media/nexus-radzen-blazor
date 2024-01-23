@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -309,7 +308,7 @@ namespace Radzen.Blazor
         /// <value>The filter placeholder value.</value>
         [Parameter]
         public string FilterPlaceholder { get; set; }
-
+        
         /// <summary>
         /// Gets the filter placeholder.
         /// </summary>
@@ -318,7 +317,7 @@ namespace Radzen.Blazor
         {
             return FilterPlaceholder ?? string.Empty;
         }
-
+        
         /// <summary>
         /// Gets or sets the second filter value.
         /// </summary>
@@ -1118,7 +1117,7 @@ namespace Radzen.Blazor
                 var isStringOperator = o == FilterOperator.Contains || o == FilterOperator.DoesNotContain
                     || o == FilterOperator.StartsWith || o == FilterOperator.EndsWith || o == FilterOperator.IsEmpty || o == FilterOperator.IsNotEmpty;
 
-                if ((FilterPropertyType == typeof(string) || !QueryableExtension.IsEnumerable(FilterPropertyType)) &&
+                if ((FilterPropertyType == typeof(string) || !QueryableExtension.IsEnumerable(FilterPropertyType)) && 
                     (o == FilterOperator.In || o == FilterOperator.NotIn)) return false;
 
                 return FilterPropertyType == typeof(string) || QueryableExtension.IsEnumerable(FilterPropertyType) ? isStringOperator

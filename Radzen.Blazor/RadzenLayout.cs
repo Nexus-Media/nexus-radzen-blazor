@@ -1,4 +1,7 @@
-﻿namespace Radzen.Blazor
+﻿using Microsoft.AspNetCore.Components;
+using System.Linq;
+
+namespace Radzen.Blazor
 {
     /// <summary>
     /// RadzenLayout component.

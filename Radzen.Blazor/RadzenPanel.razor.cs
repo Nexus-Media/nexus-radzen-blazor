@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-
 using System.Threading.Tasks;
 
 namespace Radzen.Blazor
@@ -109,7 +108,7 @@ namespace Radzen.Blazor
         /// <value>The title attribute value of the expand button.</value>
         [Parameter]
         public string ExpandTitle { get; set; } = "Expand";
-
+        
         /// <summary>
         /// Gets or sets the title attribute of the collapse button.
         /// </summary>
@@ -123,14 +122,14 @@ namespace Radzen.Blazor
         /// <value>The aria-label attribute value of the expand button.</value>
         [Parameter]
         public string ExpandAriaLabel { get; set; } = null;
-
+        
         /// <summary>
         /// Gets or sets the aria-label attribute of the collapse button.
         /// </summary>
         /// <value>The aria-label attribute value of the collapse button.</value>
         [Parameter]
         public string CollapseAriaLabel { get; set; } = null;
-
+        
         string contentStyle = "display: block;";
         string summaryContentStyle = "display: none";
 

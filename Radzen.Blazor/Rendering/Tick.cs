@@ -23,7 +23,7 @@ namespace Radzen.Blazor.Rendering
 
         /// <summary> Gets or sets the pixel width of the tick. </summary>
         [Parameter]
-        public double StrokeWidth { get; set; }
+        public double StrokeWidth { get ; set; }
 
         /// <summary> Gets or sets the type of the line used to display the tick. </summary>
         [Parameter]

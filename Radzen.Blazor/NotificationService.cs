@@ -1,5 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Radzen.Blazor;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 
 namespace Radzen
 {
@@ -104,7 +108,7 @@ namespace Radzen
         /// Gets or sets the click event.
         /// </summary>
         /// <value>This event handler is called when the notification is clicked on.</value>
-        public Action<NotificationMessage> Click { get; set; }
+        public Action<NotificationMessage> Click { get; set; } 
         /// <summary>
         /// Get or set the event for when the notification is closed
         /// </summary>
@@ -141,13 +145,13 @@ namespace Radzen
         /// <returns></returns>
         public bool Equals(NotificationMessage other)
         {
-            if (other == null) return false;
+            if(other == null) return false;
+            
+            if(object.ReferenceEquals(this, other)) return true;
 
-            if (object.ReferenceEquals(this, other)) return true;
-
-            return this.Severity == other.Severity
-                && this.Summary == other.Summary
-                && this.Detail == other.Detail
+            return this.Severity == other.Severity 
+                && this.Summary == other.Summary 
+                && this.Detail == other.Detail 
                 && this.Duration == other.Duration
                 && this.Style == other.Style
                 && this.Click == other.Click

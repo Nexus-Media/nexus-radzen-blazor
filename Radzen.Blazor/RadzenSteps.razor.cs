@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -229,7 +228,7 @@ namespace Radzen.Blazor
                 }
             }
         }
-
+        
         private string _previousTitle = "Go to the previous step.";
         /// <summary>
         /// Gets or sets the previous button title attribute.
@@ -257,7 +256,7 @@ namespace Radzen.Blazor
         /// </summary>
         /// <value>The next button aria-label attribute.</value>
         public string NextAriaLabel => StepsCollection.ElementAtOrDefault(SelectedIndex)?.NextAriaLabel;
-
+        
         /// <summary>
         /// Gets the previous button aria-label attribute.
         /// </summary>

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
-
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Web;
+using System.Collections.Generic;
 
 namespace Radzen.Blazor
 {
@@ -38,7 +38,7 @@ namespace Radzen.Blazor
         /// <value>The value template.</value>
         [Parameter]
         public RenderFragment<dynamic> ValueTemplate { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the empty template.
         /// </summary>
@@ -52,7 +52,7 @@ namespace Radzen.Blazor
         /// <value><c>true</c> if popup should open on focus; otherwise, <c>false</c>.</value>
         [Parameter]
         public bool OpenOnFocus { get; set; }
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether search field need to be cleared after selection. Set to <c>false</c> by default.
         /// </summary>
@@ -223,7 +223,7 @@ namespace Radzen.Blazor
                 {
                     await JSRuntime.InvokeVoidAsync("Radzen.closePopup", PopupID);
                 }
-
+                
                 if (ClearSearchAfterSelection)
                 {
                     await JSRuntime.InvokeAsync<string>("Radzen.setInputValue", search, string.Empty);
@@ -277,6 +277,6 @@ namespace Radzen.Blazor
         internal async Task ClosePopup()
         {
             await JSRuntime.InvokeVoidAsync("Radzen.closePopup", PopupID);
-        }
+        }       
     }
 }

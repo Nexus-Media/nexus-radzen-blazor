@@ -2,14 +2,13 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
-
 using Radzen.Blazor;
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Linq.Dynamic.Core.Parser;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -595,7 +594,6 @@ namespace Radzen
         /// Gets the instance of the RadzenGrid component which has rendered.
         /// </summary>
         public RadzenGrid<T> Grid { get; internal set; }
-        public NexusGrid<T> NexusGrid { get; internal set; }
         /// <summary>
         /// Gets a value indicating whether this is the first time the RadzenGrid has rendered.
         /// </summary>
@@ -613,7 +611,6 @@ namespace Radzen
         /// Gets the instance of the RadzenDataGrid component which has rendered.
         /// </summary>
         public RadzenDataGrid<T> Grid { get; internal set; }
-        public NexusDataGrid<T> NexusGrid { get; internal set; }
         /// <summary>
         /// Gets a value indicating whether this is the first time the RadzenDataGrid has rendered.
         /// </summary>
@@ -642,7 +639,6 @@ namespace Radzen
         /// Gets the RadzenGridColumn which this cells represents.
         /// </summary>
         public RadzenGridColumn<T> Column { get; internal set; }
-        public NexusGridColumn<T> NexusColumn { get; internal set; }
     }
 
     /// <summary>
@@ -655,7 +651,6 @@ namespace Radzen
         /// Gets the RadzenDataGridColumn which this cells represents.
         /// </summary>
         public RadzenDataGridColumn<T> Column { get; internal set; }
-        public NexusDataGridColumn<T> NexusColumn { get; internal set; }
     }
 
     /// <summary>
@@ -673,7 +668,6 @@ namespace Radzen
         /// Gets the RadzenDataGridColumn which this cells represents.
         /// </summary>
         public RadzenDataGridColumn<T> Column { get; internal set; }
-        public NexusDataGridColumn<T> NexusColumn { get; internal set; }
     }
 
     /// <summary>
@@ -986,20 +980,21 @@ namespace Radzen
     /// <summary>
     /// Specifies the position at which a Radzen Blazor component renders its built-in <see cref="RadzenPager" />.
     /// </summary>
+    [Flags]
     public enum PagerPosition
     {
         /// <summary>
         /// RadzenPager is displayed at the top of the component.
         /// </summary>
-        Top,
+        Top = 1,
         /// <summary>
         /// RadzenPager is displayed at the bottom of the component.
         /// </summary>
-        Bottom,
+        Bottom = 2,
         /// <summary>
         /// RadzenPager is displayed at the top and at the bottom of the component.
         /// </summary>
-        TopAndBottom
+        TopAndBottom = Top | Bottom
     }
 
     /// <summary>
@@ -1841,7 +1836,6 @@ namespace Radzen
         /// Gets the picked columns.
         /// </summary>
         public IEnumerable<RadzenDataGridColumn<T>> Columns { get; internal set; }
-        public IEnumerable<NexusDataGridColumn<T>> NexusColumns { get; internal set; }
     }
 
     /// <summary>
@@ -1854,8 +1848,6 @@ namespace Radzen
         /// Gets the sorted RadzenDataGridColumn.
         /// </summary>
         public RadzenDataGridColumn<T> Column { get; internal set; }
-        public NexusDataGridColumn<T> NexusColumn { get; internal set; }
-
 
         /// <summary>
         /// Gets the new sort order of the sorted column.
@@ -1873,7 +1865,6 @@ namespace Radzen
         /// Gets the sorted RadzenDataGridColumn.
         /// </summary>
         public RadzenDataGridColumn<T> Column { get; internal set; }
-        public NexusDataGridColumn<T> NexusColumn { get; internal set; }
 
         /// <summary>
         /// Gets the new sort order of the sorted column.
@@ -1891,7 +1882,6 @@ namespace Radzen
         /// Gets the filtered RadzenDataGridColumn.
         /// </summary>
         public RadzenDataGridColumn<T> Column { get; internal set; }
-        public NexusDataGridColumn<T> NexusColumn { get; internal set; }
 
         /// <summary>
         /// Gets the new filter value of the filtered column.
@@ -1929,7 +1919,6 @@ namespace Radzen
         /// Gets the resized RadzenDataGridColumn.
         /// </summary>
         public RadzenDataGridColumn<T> Column { get; internal set; }
-        public NexusDataGridColumn<T> NexusColumn { get; internal set; }
 
         /// <summary>
         /// Gets the new width of the resized column.
@@ -1947,7 +1936,6 @@ namespace Radzen
         /// Gets the reordered RadzenDataGridColumn.
         /// </summary>
         public RadzenDataGridColumn<T> Column { get; internal set; }
-        public NexusDataGridColumn<T> NexusColumn { get; internal set; }
         /// <summary>
         /// Gets the old index of the column.
         /// </summary>
@@ -1968,7 +1956,6 @@ namespace Radzen
         /// Gets the resized RadzenGridColumn.
         /// </summary>
         public RadzenGridColumn<T> Column { get; internal set; }
-        public NexusGridColumn<T> NexusColumn { get; internal set; }
         /// <summary>
         /// Gets the new width of the column.
         /// </summary>
@@ -2576,7 +2563,7 @@ namespace Radzen
                     if (body.Type.IsInterface)
                     {
                         body = Expression.Property(body,
-                            new[] { body.Type }.Concat(body.Type.GetInterfaces()).FirstOrDefault(t => t.GetProperty(member) != null),
+                            new [] { body.Type }.Concat(body.Type.GetInterfaces()).FirstOrDefault(t => t.GetProperty(member) != null),
                             member
                         );
                     }

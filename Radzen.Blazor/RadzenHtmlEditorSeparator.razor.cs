@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 namespace Radzen.Blazor
 {
     /// <summary>

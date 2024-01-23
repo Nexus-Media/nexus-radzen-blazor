@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
-
 using System;
 using System.Linq;
+using System.Text;
 
 namespace Radzen.Blazor
 {
@@ -65,7 +65,7 @@ namespace Radzen.Blazor
             else if (Wrap == FlexWrap.NoWrap)
             {
                 wrap = ";flex-wrap:nowrap;";
-            }
+            } 
             else if (Wrap == FlexWrap.WrapReverse)
             {
                 wrap = ";flex-wrap:wrap-reverse;";
