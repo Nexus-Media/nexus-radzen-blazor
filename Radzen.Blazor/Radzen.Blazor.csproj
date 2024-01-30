@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <NoWarn>BL9993;BL0007;BL0005</NoWarn>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
     <LangVersion>12.0</LangVersion>
     <OutputType>Library</OutputType>
@@ -20,6 +20,10 @@
     <Title>Radzen Components for Blazor</Title>
     <RepositoryUrl>https://github.com/radzenhq/radzen-blazor</RepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RazorCompileOnBuild>true</RazorCompileOnBuild>
+    <RazorCompileOnPublish>true</RazorCompileOnPublish>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DartSassBuilder" Version="1.0.0"/>
@@ -64,5 +68,9 @@
     </ItemGroup>
     <Move SourceFiles="@(CssFile)" DestinationFolder="$(MSBuildProjectDirectory)/wwwroot/css/" />
   </Target> 
+
+  <ItemGroup>
+    <Content Update="package-lock.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
 
 </Project>
