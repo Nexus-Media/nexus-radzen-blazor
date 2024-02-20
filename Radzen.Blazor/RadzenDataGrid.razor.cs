@@ -116,7 +116,7 @@ namespace Radzen.Blazor
 
             var totalItemsCount = LoadData.HasDelegate ? Count : view.Count();
 
-            virtualDataItems = (LoadData.HasDelegate ? Data : itemToInsert != null ? (new[] { itemToInsert }).Concat(view.Skip(request.StartIndex).Take(top)) : view.Skip(request.StartIndex).Take(top))?.ToList();
+            virtualDataItems = (LoadData.HasDelegate ? Data : itemsToInsert.Count() > 0 ? itemsToInsert.ToList().Concat(view.Skip(request.StartIndex).Take(top)) : view.Skip(request.StartIndex).Take(top))?.ToList();
 
             return new Microsoft.AspNetCore.Components.Web.Virtualization.ItemsProviderResult<TItem>(virtualDataItems, totalItemsCount);
         }
@@ -438,6 +438,13 @@ namespace Radzen.Blazor
 
         bool preventKeyDown = false;
         int focusedIndex = -1;
+        int focusedCellIndex = 0;
+
+        internal string GridId()
+        {
+            return GetId();
+        }
+
         /// <summary>
         /// Handles the <see cref="E:KeyDown" /> event.
         /// </summary>
@@ -446,32 +453,55 @@ namespace Radzen.Blazor
         {
             var key = args.Code != null ? args.Code : args.Key;
 
-            if (key == "ArrowDown" || key == "ArrowUp")
+            if (key == "ArrowDown" || key == "ArrowUp" || key == "ArrowLeft" || key == "ArrowRight")
             {
                 preventKeyDown = true;
+
+                if (focusedIndex == 0 && AllowFiltering && FilterMode == FilterMode.Advanced && key == "ArrowDown" && args.AltKey)
+                {
+                    var column = ColumnsCollection.Where(c => c.GetVisible()).ElementAtOrDefault(focusedCellIndex);
+                    if (column != null && column.headerCell != null && column.Filterable)
+                    {
+                        await column.headerCell.OpenFilter();
+                    }
+                    return;
+                }
+
                 try
                 {
-                    var newFocusedIndex = await JSRuntime.InvokeAsync<int>("Radzen.focusTableRow", UniqueID, key == "ArrowDown", focusedIndex, SelectionMode == DataGridSelectionMode.Multiple && args.ShiftKey);
-                    
-                    if (newFocusedIndex != focusedIndex)
-                    {
-                        focusedIndex = newFocusedIndex;
+                    var result = await JSRuntime.InvokeAsync<int[]>("Radzen.focusTableRow", UniqueID, key, focusedIndex, focusedCellIndex);
+                    focusedIndex = result[0];
+                    focusedCellIndex = result[1];
+                }
+                catch (Exception)
+                {
+                    //
+                }
+            }
+            else if (key == "Space" || key == "Enter")
+            {
+                preventKeyDown = true;
 
+                if (focusedIndex == 0)
+                {
+                    var column = ColumnsCollection.Where(c => c.GetVisible()).ElementAtOrDefault(focusedCellIndex);
+                    if (column != null)
+                    {
+                        await OnSort(args, column);
+                    }
+                }
+                else
+                {
+                    var itemToSelect = PagedView.ElementAtOrDefault(focusedIndex - 1);
+                    if (itemToSelect != null)
+                    {
                         if (SelectionMode == DataGridSelectionMode.Multiple && !args.ShiftKey)
                         {
                             selectedItems.Clear();
                         }
 
-                        var itemToSelect = PagedView.ElementAtOrDefault(newFocusedIndex);
-                        if (itemToSelect != null)
-                        {
-                            await SelectRow(itemToSelect, false);
-                        }
+                        await SelectRow(itemToSelect, false);
                     }
-                }
-                catch (Exception)
-                {
-                    //
                 }
             }
             else
@@ -834,7 +864,7 @@ namespace Radzen.Blazor
         [Parameter]
         public EventCallback<DataGridColumnSortEventArgs<TItem>> Sort { get; set; }
 
-        internal void OnSort(EventArgs args, RadzenDataGridColumn<TItem> column)
+        internal async Task OnSort(EventArgs args, RadzenDataGridColumn<TItem> column)
         {
             if (AllowSorting && column.Sortable)
             {
@@ -846,26 +876,24 @@ namespace Radzen.Blazor
                 }
 
                 var property = column.GetSortProperty();
-                if (!string.IsNullOrEmpty(property))
-                {
-                    OrderBy(property);
-                }
-                else
-                {
-                    SetColumnSortOrder(column);
 
-                    Sort.InvokeAsync(new DataGridColumnSortEventArgs<TItem>() { Column = column, SortOrder = column.GetSortOrder() });
-                    SaveSettings();
+                SetColumnSortOrder(column);
+                await Sort.InvokeAsync(new DataGridColumnSortEventArgs<TItem>() { Column = column, SortOrder = column.GetSortOrder() });
+                SaveSettings();
 
-                    if (LoadData.HasDelegate && IsVirtualizationAllowed())
-                    {
-                        Data = null;
+                if (LoadData.HasDelegate && IsVirtualizationAllowed())
+                {
+                    Data = null;
 #if NET5_0_OR_GREATER
-                        ResetLoadData();
+                    ResetLoadData();
 #endif
-                    }
+                }
 
-                    InvokeAsync(ReloadInternal);
+                await InvokeAsync(ReloadInternal);
+
+                if (IsVirtualizationAllowed())
+                {
+                    StateHasChanged();
                 }
             }
         }
@@ -2541,7 +2569,15 @@ namespace Radzen.Blazor
 
         internal async System.Threading.Tasks.Task OnRowSelect(TItem item, bool raiseChange = true)
         {
-            focusedIndex = PagedView.ToList().IndexOf(item);
+            var focusedIndexResult = PagedView
+                .Select((x, i) => new { Item = x, Index = i })
+                .Where(itemWithIndex => ItemEquals(itemWithIndex.Item, item))
+                .FirstOrDefault();
+
+            if (focusedIndexResult != null)
+            {
+                focusedIndex = focusedIndexResult.Index + 1;
+            }
 
             if (SelectionMode == DataGridSelectionMode.Single && item != null && selectedItems.Keys.Any(i => ItemEquals(i, item)))
             {
@@ -2645,9 +2681,13 @@ namespace Radzen.Blazor
         /// <param name="item">The item.</param>
         public async System.Threading.Tasks.Task EditRow(TItem item)
         {
-            if(itemToInsert != null)
+            if(itemsToInsert.Count() > 0 && EditMode == DataGridEditMode.Single)
             {
-                CancelEditRow(itemToInsert);
+                var itemsToCancel = itemsToInsert.ToList();
+                foreach( var itemToCancel in itemsToCancel)
+                {
+                    CancelEditRow(itemToCancel);
+                }
             }
 
             await EditRowInternal(item);
@@ -2717,10 +2757,10 @@ namespace Radzen.Blazor
                     editedItems.Remove(item);
                     editContexts.Remove(item);
 
-                    if (object.Equals(itemToInsert, item))
+                    if (itemsToInsert.Contains(item))
                     {
                         await RowCreate.InvokeAsync(item);
-                        itemToInsert = default(TItem);
+                        itemsToInsert.Remove(item);
                     }
                     else
                     {
@@ -2738,7 +2778,7 @@ namespace Radzen.Blazor
         /// <param name="item">The item.</param>
         public void CancelEditRow(TItem item)
         {
-            if (object.Equals(itemToInsert, item))
+            if (itemsToInsert.Contains(item))
             {
                 if(!IsVirtualizationAllowed())
                 {
@@ -2746,13 +2786,13 @@ namespace Radzen.Blazor
                     list.Remove(item);
                     this._view = list.AsQueryable();
                     this.Count--;
-                    itemToInsert = default(TItem);
+                    itemsToInsert.Remove(item);
                     StateHasChanged();
                 }
                 else
                 {
 #if NET5_0_OR_GREATER
-                    itemToInsert = default(TItem);
+                    itemsToInsert.Remove(item);
                     if(virtualize != null)
                     {
                         virtualize.RefreshDataAsync();
@@ -2806,7 +2846,7 @@ namespace Radzen.Blazor
             return editedItems.Keys.Any(i => ItemEquals(i, item));
         }
 
-        TItem itemToInsert;
+        IList<TItem> itemsToInsert = new List<TItem>();
 
         /// <summary>
         /// Inserts new row.
@@ -2814,7 +2854,7 @@ namespace Radzen.Blazor
         /// <param name="item">The item.</param>
         public async System.Threading.Tasks.Task InsertRow(TItem item)
         {
-            itemToInsert = item;
+            itemsToInsert.Add(item);
             if(!IsVirtualizationAllowed())
             {
                 var list = this.PagedView.ToList();
@@ -3452,9 +3492,9 @@ namespace Radzen.Blazor
                 {
                     return element.GetDateTime();
                 }
-                else if (type == typeof(DateTime) || type == typeof(DateTime?))
+                else if (type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?))
                 {
-                    return element.GetDateTime();
+                    return element.GetDateTimeOffset();
                 }
                 else if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 {

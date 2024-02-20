@@ -390,7 +390,7 @@ namespace Radzen.Blazor
 
             if (!string.IsNullOrEmpty(searchText) && !LoadData.HasDelegate)
             {
-                await OnLoadData(new Radzen.LoadDataArgs() { Skip = 0, Top = PageSize });
+                await OnLoadData(new Radzen.LoadDataArgs() { Skip = skip, Top = PageSize });
             }
         }
 
@@ -422,10 +422,13 @@ namespace Radzen.Blazor
             return type == typeof(string);
         }
 
+        int? skip;
         async Task OnLoadData(LoadDataArgs args)
         {
             if (!LoadData.HasDelegate)
             {
+                skip = args.Skip;
+
                 var query = Query;
 
                 if (query == null)
@@ -602,7 +605,7 @@ namespace Radzen.Blazor
                 await grid.SelectRow(null);
             }
 
-            await grid.Reload();
+            await OnLoadData(new Radzen.LoadDataArgs() { Skip = 0, Top = PageSize });
 
             StateHasChanged();
         }
@@ -610,34 +613,35 @@ namespace Radzen.Blazor
         string previousSearch;
 
         /// <inheritdoc />
-        protected override async Task HandleKeyPress(KeyboardEventArgs args, bool isFilter)
+        protected override async Task HandleKeyPress(KeyboardEventArgs args, bool isFilter, bool? shouldSelectOnChange = null)
         {
             var items = (LoadData.HasDelegate ? Data != null ? Data : Enumerable.Empty<object>() : (pagedData != null ? pagedData : Enumerable.Empty<object>())).OfType<object>().ToList();
 
             var key = args.Code != null ? args.Code : args.Key;
 
-            if (!args.AltKey && (key == "ArrowDown" || key == "ArrowLeft" || key == "ArrowUp" || key == "ArrowRight"))
+            if (!args.AltKey && (key == "ArrowDown" || key == "ArrowUp"))
             {
+                preventKeydown = true;
+
                 try
                 {
-                    var currentViewIndex = Multiple ? selectedIndex : items.IndexOf(selectedItem);
-
-                    var newSelectedIndex = await JSRuntime.InvokeAsync<int>("Radzen.focusTableRow", grid.UniqueID, key == "ArrowDown" || key == "ArrowRight", currentViewIndex);
-
-                    var item = items.ElementAtOrDefault(newSelectedIndex);
+                    var newSelectedIndex = Math.Clamp(selectedIndex + (key == "ArrowUp" ? -1 : 1), 0, items.Count - 1);
+                    var shouldChange = newSelectedIndex != selectedIndex;
+                    if (shouldChange)
+                    {
+                        selectedIndex = newSelectedIndex;
+                        await JSRuntime.InvokeAsync<int[]>("Radzen.focusTableRow", grid.GridId(), key, selectedIndex - 1, null);
+                        await grid.OnRowSelect(items[selectedIndex], false);
+                    }
 
                     if (!Multiple)
                     {
-                        if (newSelectedIndex != currentViewIndex && newSelectedIndex >= 0 && newSelectedIndex <= items.Count() - 1)
+                        var popupOpened = await JSRuntime.InvokeAsync<bool>("Radzen.popupOpened", PopupID);
+
+                        if (shouldChange && (!popupOpened || grid.IsVirtualizationAllowed()))
                         {
-                            selectedIndex = newSelectedIndex;
-                            await grid.OnRowSelect(item, false);
-                            await OnSelectItem(item, true);
+                            await OnSelectItem(items[selectedIndex], true);
                         }
-                    }
-                    else
-                    {
-                        selectedIndex = await JSRuntime.InvokeAsync<int>("Radzen.focusTableRow", grid.UniqueID, key == "ArrowDown", currentViewIndex);
                     }
                 }
                 catch (Exception)
@@ -645,15 +649,47 @@ namespace Radzen.Blazor
                     //
                 }
             }
-            else if (Multiple && key == "Enter")
+            else if ((key == "ArrowLeft" || key == "ArrowRight") && !grid.IsVirtualizationAllowed())
             {
-                if (selectedIndex >= 0 && selectedIndex <= items.Count() - 1)
+                if (key == "ArrowLeft")
                 {
-                    await OnSelectItem(items.ElementAt(selectedIndex), true);
+                    await grid.PrevPage();
+                }
+                else 
+                {
+                    await grid.NextPage();
                 }
             }
-            else if (key == "Enter" || (args.AltKey && key == "ArrowDown"))
+            else if (key == "Enter")
             {
+                preventKeydown = true;
+
+                var popupOpened = await JSRuntime.InvokeAsync<bool>("Radzen.popupOpened", PopupID);
+
+                if (!popupOpened)
+                {
+                    await OpenPopup(key, isFilter);
+                }
+                else
+                {
+                    if (!grid.IsVirtualizationAllowed())
+                    {
+                        if (selectedIndex >= 0 && selectedIndex <= items.Count - 1)
+                        {
+                            await OnSelectItem(items[selectedIndex], true);
+                        }
+                    }
+
+                    if (!Multiple)
+                    {
+                        await JSRuntime.InvokeVoidAsync("Radzen.closePopup", PopupID);
+                    }
+                }
+            }
+            else if (args.AltKey && key == "ArrowDown")
+            {
+                preventKeydown = true;
+
                 await OpenPopup(key, isFilter);
             }
             else if (key == "Escape" || key == "Tab")
@@ -662,6 +698,8 @@ namespace Radzen.Blazor
             }
             else if (key == "Delete" && AllowClear)
             {
+                preventKeydown = true;
+
                 if (!Multiple && selectedItem != null)
                 {
                     selectedIndex = -1;
@@ -675,8 +713,14 @@ namespace Radzen.Blazor
             }
             else if (AllowFiltering && isFilter && FilterAsYouType)
             {
+                preventKeydown = true;
+
                 selectedIndex = -1;
                 Debounce(DebounceFilter, FilterDelay);
+            }
+            else
+            {
+                preventKeydown = false;
             }
         }
 

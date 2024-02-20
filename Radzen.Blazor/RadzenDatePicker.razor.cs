@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen.Blazor.Rendering;
 using System;
@@ -255,6 +256,13 @@ namespace Radzen.Blazor
 
             UpdateYearsAndMonths(Min, Max);
 
+#if NET6_0_OR_GREATER
+            if (typeof(TValue) == typeof(TimeOnly) || typeof(TValue) == typeof(TimeOnly?))
+            {
+                TimeOnly = true;
+                ShowTime = true;
+            }
+#endif
         }
 
         void UpdateYearsAndMonths(DateTime? min, DateTime? max)
@@ -375,7 +383,7 @@ namespace Radzen.Blazor
             {
                 if (_value != value)
                 {
-                    _value = value;
+                    _value = ConvertToTValue(value);
                     _currentDate = default(DateTime);
 
                     if (value is DateTimeOffset offset)
@@ -401,6 +409,16 @@ namespace Radzen.Blazor
                         {
                             DateTimeValue = DateTime.SpecifyKind(dateTime, Kind);
                         }
+#if NET6_0_OR_GREATER
+                        else if (value is DateOnly dateOnly)
+                        {
+                            DateTimeValue = dateOnly.ToDateTime(System.TimeOnly.MinValue, Kind);
+                        }
+                        else if (value is TimeOnly timeOnly)
+                        {
+                            DateTimeValue = new DateTime(1,1,0001, timeOnly.Hour, timeOnly.Minute, timeOnly.Second, timeOnly.Millisecond, Kind);
+                        }
+#endif
                         else
                         {
                             DateTimeValue = null;
@@ -408,6 +426,27 @@ namespace Radzen.Blazor
                     }
                 }
             }
+        }
+
+        private static object ConvertToTValue(object value)
+        {
+#if NET6_0_OR_GREATER
+            var typeofTValue = typeof(TValue);
+            if (value is DateTime dt)
+            {
+                if (typeofTValue == typeof(DateOnly) || typeofTValue == typeof(DateOnly?))
+                {
+                    value = DateOnly.FromDateTime(dt);
+                    return (TValue)value;
+                }
+                if (typeofTValue == typeof(TimeOnly) || typeofTValue == typeof(TimeOnly?))
+                {
+                    value = System.TimeOnly.FromDateTime(dt);
+                    return (TValue)value;
+                }
+            }
+#endif
+            return value;
         }
 
         DateTime _currentDate;
@@ -951,12 +990,12 @@ namespace Radzen.Blazor
 
         private string getOpenPopup()
         {
-            return PopupRenderMode == PopupRenderMode.Initial && !Disabled && !ReadOnly && !Inline ? $"Radzen.togglePopup(this.parentNode, '{PopupID}')" : "";
+            return PopupRenderMode == PopupRenderMode.Initial && !Disabled && !ReadOnly && !Inline ? $"Radzen.togglePopup(this.parentNode, '{PopupID}', false, null, null, true, true)" : "";
         }
 
         private string getOpenPopupForInput()
         {
-            return PopupRenderMode == PopupRenderMode.Initial && !Disabled && !ReadOnly && !Inline && (!AllowInput || !ShowButton) ? $"Radzen.togglePopup(this.parentNode, '{PopupID}')" : "";
+            return PopupRenderMode == PopupRenderMode.Initial && !Disabled && !ReadOnly && !Inline && (!AllowInput || !ShowButton) ? $"Radzen.togglePopup(this.parentNode, '{PopupID}', false, null, null, true, true)" : "";
         }
 
         /// <summary>
@@ -1084,6 +1123,7 @@ namespace Radzen.Blazor
 #endif
             }
         }
+        DateTime FocusedDate { get; set; } = DateTime.Now;
 
         string GetDayCssClass(DateTime date, DateRenderEventArgs dateArgs, bool forCell = true)
         {
@@ -1092,9 +1132,77 @@ namespace Radzen.Blazor
                                .Add("rz-datepicker-other-month", CurrentDate.Month != date.Month)
                                .Add("rz-state-active", !forCell && DateTimeValue.HasValue && DateTimeValue.Value.Date.CompareTo(date.Date) == 0)
                                .Add("rz-datepicker-today", !forCell && DateTime.Now.Date.CompareTo(date.Date) == 0)
+                               .Add("rz-state-focused", !forCell && FocusedDate.Date.CompareTo(date.Date) == 0)
                                .Add("rz-state-disabled", !forCell && dateArgs.Disabled)
                                .ToString();
         }
+        async Task OnCalendarKeyPress(KeyboardEventArgs args)
+        {
+            var key = args.Code != null ? args.Code : args.Key;
+
+            if (key == "ArrowLeft" || key == "ArrowRight")
+            {
+                preventKeyPress = true;
+
+                FocusedDate = FocusedDate.AddDays(key == "ArrowLeft" ? -1 : 1);
+                CurrentDate = FocusedDate;
+            }
+            else if (key == "ArrowUp" || key == "ArrowDown")
+            {
+                preventKeyPress = true;
+
+                FocusedDate = FocusedDate.AddDays(key == "ArrowUp" ? -7 : 7);
+                CurrentDate = FocusedDate;
+            }
+            else if (key == "Escape" || key == "Enter")
+            {
+                preventKeyPress = true;
+
+                if(key == "Enter")
+                {
+                    await SetDay(FocusedDate);
+                }
+
+                await TogglePopup();
+#if NET5_0_OR_GREATER
+                await FocusAsync();
+#endif
+            }
+            else
+            {
+                preventKeyPress = false;
+            }
+        }
+
+        async Task OnKeyPress(KeyboardEventArgs args)
+        {
+            var key = args.Code != null ? args.Code : args.Key;
+
+            if (key == "Escape" || key == "Enter")
+            {
+                preventKeyPress = true;
+
+                await TogglePopup();
+            }
+            else
+            {
+                preventKeyPress = false;
+            }
+        }
+
+        internal async Task TogglePopup()
+        {
+            if (PopupRenderMode == PopupRenderMode.Initial)
+            {
+                await JSRuntime.InvokeVoidAsync("Radzen.togglePopup", Element, PopupID, false, null, null, true, true);
+            }
+            else
+            {
+                await popup.ToggleAsync(Element);
+            }
+        }
+
+        bool preventKeyPress = false;
 #if NET5_0_OR_GREATER
         /// <inheritdoc/>
         public async ValueTask FocusAsync()

@@ -295,6 +295,61 @@ namespace Radzen
     }
 
     /// <summary>
+    /// Month enum
+    /// </summary>
+    public enum Month
+    {
+        /// <summary>
+        /// January.
+        /// </summary>
+        January = 0,
+        /// <summary>
+        /// February
+        /// </summary>
+        February = 1,
+        /// <summary>
+        /// March
+        /// </summary>
+        March = 2,
+        /// <summary>
+        /// April
+        /// </summary>
+        April = 3,
+        /// <summary>
+        /// May
+        /// </summary>
+        May = 4,
+        /// <summary>
+        /// June
+        /// </summary>
+        June = 5,
+        /// <summary>
+        /// July
+        /// </summary>
+        July = 6,
+        /// <summary>
+        /// August
+        /// </summary>
+        August = 7,
+        /// <summary>
+        /// September
+        /// </summary>
+        September = 8,
+        /// <summary>
+        /// October
+        /// </summary>
+        October = 9,
+        /// <summary>
+        /// November
+        /// </summary>
+        November = 10,
+        /// <summary>
+        /// December
+        /// </summary>
+        December = 11,
+    }
+
+    /// <summary>
     /// Html editor mode (Rendered or Raw). Also used for toolbar buttons to enable/disable according to mode.
     /// </summary>
     [Flags]
@@ -1669,15 +1724,15 @@ namespace Radzen
         /// </summary>
         DoesNotContain,
         /// <summary>
-        /// Satisfied if the current value is null.
+        /// Satisfied if the current value is in the specified value.
         /// </summary>
         In,
         /// <summary>
-        /// Satisfied if the current value is in the specified value.
+        /// Satisfied if the current value is not in the specified value.
         /// </summary>
         NotIn,
         /// <summary>
-        /// Satisfied if the current value is not in the specified value.
+        /// Satisfied if the current value is null.
         /// </summary>
         IsNull,
         /// <summary>
@@ -2020,7 +2075,7 @@ namespace Radzen
         /// Gets or sets the operator which will compare the property value with <see cref="FilterValue" />.
         /// </summary>
         /// <value>The filter operator.</value>
-        public FilterOperator FilterOperator { get; set; }
+        public FilterOperator? FilterOperator { get; set; }
 
         /// <summary>
         /// Gets or sets the logic used to combine the outcome of filtering by <see cref="FilterValue" />.

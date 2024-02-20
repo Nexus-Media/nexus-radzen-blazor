@@ -578,5 +578,66 @@ namespace Radzen.Blazor.Tests
 
             Assert.Contains(@$"rzi-time", component.Markup);
         }
+
+        [Fact]
+        public void DatePicker_Supports_DateOnly()
+        {
+            using var ctx = new TestContext();
+            ctx.JSInterop.Mode = JSRuntimeMode.Loose;
+            ctx.JSInterop.SetupModule("_content/Radzen.Blazor/Radzen.Blazor.js");
+
+            DateOnly? dateOnly = new DateOnly(2024, 1, 31);
+            DateOnly? valueChangedValue = null!;
+            var component = ctx.RenderComponent<RadzenDatePicker<DateOnly?>>(parameters =>
+            {
+                parameters.Add(p => p.Value, dateOnly);
+                parameters.Add(p => p.ValueChanged, args => { valueChangedValue = args; });
+            });
+            
+            Assert.False(component.Instance.ShowTime);
+            var input = component.Find("input");
+            input.GetAttribute("value").MarkupMatches(dateOnly.ToString());
+
+            // update to new value
+            var inputElement = component.Find(".rz-inputtext");
+            DateOnly? enteredValue = new DateOnly(2024, 2, 28);
+            ctx.JSInterop.Setup<string>("Radzen.getInputValue", invocation => true).SetResult(enteredValue.Value.ToShortDateString());
+            inputElement.Change(enteredValue);
+            
+            input.GetAttribute("value").MarkupMatches(enteredValue.ToString());
+            Assert.Equal(enteredValue, component.Instance.Value);
+            Assert.Equal(enteredValue, valueChangedValue);
+        }
+
+        [Fact]
+        public void DatePicker_Supports_TimeOnly()
+        {
+            using var ctx = new TestContext();
+            ctx.JSInterop.Mode = JSRuntimeMode.Loose;
+            ctx.JSInterop.SetupModule("_content/Radzen.Blazor/Radzen.Blazor.js");
+
+            TimeOnly? timeOnly = new TimeOnly(23, 59, 59);
+            TimeOnly? valueChangedValue = null!;
+            var component = ctx.RenderComponent<RadzenDatePicker<TimeOnly>>(parameters =>
+            {
+                parameters.Add(p => p.Value, timeOnly);
+                parameters.Add(p => p.ValueChanged, args => { valueChangedValue = args; });
+            });
+            
+            Assert.True(component.Instance.TimeOnly);
+            Assert.True(component.Instance.ShowTime);
+            var input = component.Find("input");
+            input.GetAttribute("value").MarkupMatches(timeOnly.ToString());
+            
+            // update to new value
+            var inputElement = component.Find(".rz-inputtext");
+            TimeOnly? enteredValue = new TimeOnly(1, 4, 5);
+            ctx.JSInterop.Setup<string>("Radzen.getInputValue", invocation => true).SetResult(enteredValue.Value.ToLongTimeString());
+            inputElement.Change(enteredValue);
+
+            input.GetAttribute("value").MarkupMatches(enteredValue.ToString());
+            Assert.Equal(enteredValue, component.Instance.Value);
+            Assert.Equal(enteredValue, valueChangedValue);
+        }
     }
 }
