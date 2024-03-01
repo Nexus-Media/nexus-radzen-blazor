@@ -381,7 +381,7 @@ namespace Radzen.Blazor
             }
             set
             {
-                if (_value != value)
+                if (!EqualityComparer<object>.Default.Equals(value, _value))
                 {
                     _value = ConvertToTValue(value);
                     _currentDate = default(DateTime);
@@ -614,7 +614,7 @@ namespace Radzen.Blazor
                 }
                 else
                 {
-                    await ValueChanged.InvokeAsync((TValue)Value);
+                    await ValueChanged.InvokeAsync(Value == null ? default(TValue) : (TValue)Value);
                 }
 
                 if (FieldIdentifier.FieldName != null)
@@ -970,6 +970,9 @@ namespace Radzen.Blazor
                     Close();
                 }
             }
+#if NET5_0_OR_GREATER
+            await FocusAsync();
+#endif
         }
 
         private void SetMonth(int month)

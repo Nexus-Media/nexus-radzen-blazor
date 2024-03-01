@@ -7,16 +7,19 @@
         <li class="rz-navigation-item">
             <div class="rz-navigation-item-wrapper" onclick="Radzen.toggleMenuItem(this)">
                 <div class="rz-navigation-item-link">
-                    <div class="item-text">
+                    <div class="item-text" @onkeydown:stopPropagation>
                         @if (Template != null)
                         {
                             @Template
                         }
                     </div>
-                    <i class="rzi rz-navigation-item-icon-children" style="@iconStyle">keyboard_arrow_down</i>
+                    @if (ShowIcon)
+                    {
+                        <i class="rzi rz-navigation-item-icon-children" style="@iconStyle">keyboard_arrow_down</i>
+                    }
                 </div>
             </div>
-            <ul class="rz-navigation-menu" style="@contentStyle">
+            <ul class="rz-navigation-menu" style="@contentStyle" @onkeydown:stopPropagation>
                 <CascadingValue Value=this>
                     @ChildContent
                 </CascadingValue>

@@ -102,7 +102,12 @@ namespace Radzen.Blazor
         {
             if (Disabled)
                 return;
-
+#if NET5_0_OR_GREATER
+            if (IsVirtualizationAllowed())
+            {
+                await grid.RefreshDataAsync();
+            }
+#endif
             await JSRuntime.InvokeVoidAsync(OpenOnFocus ? "Radzen.openPopup" : "Radzen.togglePopup", Element, PopupID, true);
 
             if (FocusFilterOnPopup)
@@ -662,7 +667,7 @@ namespace Radzen.Blazor
             }
             else if (key == "Enter")
             {
-                preventKeydown = true;
+                preventKeydown = false;
 
                 var popupOpened = await JSRuntime.InvokeAsync<bool>("Radzen.popupOpened", PopupID);
 
@@ -694,6 +699,8 @@ namespace Radzen.Blazor
             }
             else if (key == "Escape" || key == "Tab")
             {
+                preventKeydown = false;
+
                 await JSRuntime.InvokeVoidAsync("Radzen.closePopup", PopupID);
             }
             else if (key == "Delete" && AllowClear)

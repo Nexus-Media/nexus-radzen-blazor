@@ -20,13 +20,13 @@
 
         @if (ValueTemplate != null && selectedItem != null)
         {
-            <span class="rz-dropdown-label rz-inputtext" style="width:100%;">
+            <span class="rz-dropdown-label rz-inputtext" style="width:100%;" @onkeydown:stopPropagation>
                 @ValueTemplate(selectedItem)
             </span>
         }
         else if (Template != null && selectedItem != null)
         {
-            <span class="rz-dropdown-label rz-inputtext" style="width:100%;">
+            <span class="rz-dropdown-label rz-inputtext" style="width:100%;" @onkeydown:stopPropagation>
                 @Template(selectedItem)
             </span>
         }
@@ -45,7 +45,7 @@
                     @foreach (var item in itemsToUse)
                     {
                         <div class="rz-chip">
-                            <span class="rz-chip-text">
+                            <span class="rz-chip-text" @onkeydown:stopPropagation>
                                 @if (Template != null)
                                 {
                                     @Template(item)
@@ -54,15 +54,15 @@
                                 {
                                     @PropertyAccess.GetItemOrValueFromProperty(item, TextProperty)
                                 }
-                            </span>  
-                            <button type="button" class="rz-button rz-button-sm rz-button-icon-only rz-light @(Disabled ?"rz-state-disabled":"")" @onclick:preventDefault @onclick:stopPropagation @onclick="() => OnChipRemove(item)"><RadzenIcon Icon="close" /></button>
+                            </span>
+                            <button tabindex="0" title="@(RemoveChipTitle + " " + GetItemOrValueFromProperty(item, TextProperty))" type="button" class="rz-button rz-button-sm rz-button-icon-only rz-light @(Disabled ?"rz-state-disabled":"")" @onclick:preventDefault @onclick:stopPropagation @onclick="() => OnChipRemove(item)"><RadzenIcon Icon="close" /></button>
                         </div>
                     }
                 </div>
             }
             else
             {
-                <label class="rz-dropdown-label rz-inputtext" style="width:100%;">
+                <label class="rz-dropdown-label rz-inputtext" style="width:100%;" @onkeydown:stopPropagation>
                     @if (itemsToUse.Count < MaxSelectedLabels)
                     {
                         @if (Template == null)
@@ -119,13 +119,13 @@
                         @oninput=@(args => { searchText = $"{args.Value}"; SearchTextChanged.InvokeAsync(searchText);}) />
                         @if (ShowSearch)
                         {
-                            <button class="rz-button rz-button-md rz-button-icon-only rz-primary" type="button" title="" @onclick="@((args) => OnFilter(new ChangeEventArgs()))">
+                            <button tabindex="0" class="rz-button rz-button-md rz-button-icon-only rz-primary" type="button" title="" @onclick="@((args) => OnFilter(new ChangeEventArgs()))">
                                 <i class="rz-button-icon-left rzi">search</i>
                             </button>
                         }
                         @if (ShowAdd)
                         {
-                            <button class="rz-button rz-button-md rz-button-icon-only rz-primary" style="margin-left: 5px" type="button" title="" @onclick="@OnAddClick">
+                            <button tabindex="0" class="rz-button rz-button-md rz-button-icon-only rz-primary" style="margin-left: 5px" type="button" title="" @onclick="@OnAddClick">
                                 <i class="rz-button-icon-left rzi">add</i>
                             </button>
                         }

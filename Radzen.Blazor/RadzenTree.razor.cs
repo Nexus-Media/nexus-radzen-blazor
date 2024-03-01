@@ -400,8 +400,6 @@ namespace Radzen.Blazor
                 preventKeyPress = true;
 
                 focusedIndex = Math.Clamp(focusedIndex + (key == "ArrowUp" ? -1 : 1), 0, CurrentItems.Count - 1);
-
-                //await JSRuntime.InvokeVoidAsync("Element.prototype.scrollIntoViewIfNeeded.call", AllExpandedItems[focusedIndex].Element);
             }
             else if (key == "ArrowLeft" || key == "ArrowRight")
             {
@@ -449,7 +447,10 @@ namespace Radzen.Blazor
 
         internal void RemoveFromCurrentItems(int index, int count)
         {
-            CurrentItems.RemoveRange(index, count);
+            if (index >= 0)
+            {
+                CurrentItems.RemoveRange(index, count);
+            }
 
             if (focusedIndex > index)
             {

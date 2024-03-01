@@ -240,7 +240,7 @@ namespace Radzen.Blazor
         /// </summary>
         public async Task Toggle()
         {
-            await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{GetId()}').click()");
+            await JSRuntime.InvokeVoidAsync("Radzen.toggleMenuItem", Element);
         }
 
         /// <summary>
@@ -248,7 +248,15 @@ namespace Radzen.Blazor
         /// </summary>
         public async Task Close()
         {
-            await JSRuntime.InvokeVoidAsync("eval", $"Radzen.toggleMenuItem(document.getElementById('{GetId()}'), event, false)");
+            await JSRuntime.InvokeVoidAsync("Radzen.toggleMenuItem", Element, "event", false);
+        }
+
+        /// <summary>
+        /// Open the menu item.
+        /// </summary>
+        public async Task Open()
+        {
+            await JSRuntime.InvokeVoidAsync("Radzen.toggleMenuItem", Element, "event", true);
         }
     }
 }

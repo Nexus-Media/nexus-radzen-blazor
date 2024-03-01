@@ -183,7 +183,7 @@ namespace Radzen.Blazor
             }
         }
 
-        void SelectItem(RadzenPanelMenuItem item)
+        internal void SelectItem(RadzenPanelMenuItem item)
         {
             var selected = ShouldMatch(item.Path);
             item.Select(selected);
@@ -241,7 +241,7 @@ namespace Radzen.Blazor
 
                 try
                 {
-                    await JSRuntime.InvokeVoidAsync("Element.prototype.scrollIntoViewIfNeeded.call", currentItems[focusedIndex].Element);
+                    await JSRuntime.InvokeVoidAsync("Radzen.scrollIntoViewIfNeeded", currentItems[focusedIndex].Element);
                 }
                 catch
                 { }
