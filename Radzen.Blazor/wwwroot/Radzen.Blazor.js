@@ -579,7 +579,7 @@ window.Radzen = {
 
             if (!cell.classList.contains('rz-state-focused')) {
                 cell.classList.add('rz-state-focused');
-                if (!isVirtual) {
+                if (!isVirtual && table.parentElement.scrollWidth > table.parentElement.clientWidth) {
                     Radzen.scrollIntoViewIfNeeded(cell);
                 }
             }
@@ -599,7 +599,7 @@ window.Radzen = {
 
             if (!row.classList.contains('rz-state-focused')) {
                 row.classList.add('rz-state-focused');
-                if (!isVirtual) {
+                if (!isVirtual && table.parentElement.scrollHeight > table.parentElement.clientHeight) {
                     Radzen.scrollIntoViewIfNeeded(row);
                 }
             }
@@ -1231,11 +1231,6 @@ window.Radzen = {
         }
     }, 500);
 
-    var layout = document.querySelector('.rz-layout');
-    if (layout) {
-        layout.addEventListener('keydown', Radzen.disableKeydown);
-    }
-
     document.removeEventListener('keydown', Radzen.closePopupOrDialog);
     if (options.closeDialogOnEsc) {
         document.addEventListener('keydown', Radzen.closePopupOrDialog);
@@ -1248,10 +1243,6 @@ window.Radzen = {
     if (dialogs.length <= 1) {
         document.removeEventListener('keydown', Radzen.closePopupOrDialog);
         delete Radzen.dialogService;
-        var layout = document.querySelector('.rz-layout');
-        if (layout) {
-            layout.removeEventListener('keydown', Radzen.disableKeydown);
-        }
     }
   },
   disableKeydown: function (e) {
@@ -1271,7 +1262,7 @@ window.Radzen = {
         isTab = (e.keyCode === 9);
     }
     if (isTab) {
-        var focusable = Radzen.getFocusableElements(e.target);
+        var focusable = Radzen.getFocusableElements(e.currentTarget);
         var firstFocusable = focusable[0];
         var lastFocusable = focusable[focusable.length - 1];
 
@@ -1969,6 +1960,10 @@ window.Radzen = {
             },
             mouseMoveHandler: function(e) {
                 if (Radzen[el]) {
+
+                    splitter.invokeMethodAsync(
+                        'RadzenSplitter.OnPaneResizing'
+                    );
 
                     var spacePerc = Radzen[el].panePerc + Radzen[el].paneNextPerc;
                     var spaceLength = Radzen[el].paneLength + Radzen[el].paneNextLength;

@@ -513,7 +513,7 @@ namespace Radzen.Blazor
                             selectedItems.Clear();
                         }
 
-                        await SelectRow(itemToSelect, false);
+                        await SelectRow(itemToSelect, true);
                     }
                 }
             }
@@ -935,7 +935,7 @@ namespace Radzen.Blazor
         /// <summary>
         /// Сlear filter on the specified column
         /// </summary>
-        public async Task ClearFilter(RadzenDataGridColumn<TItem> column, bool closePopup = false)
+        public async Task ClearFilter(RadzenDataGridColumn<TItem> column, bool closePopup = false, bool shouldReload = true)
         {
             if (closePopup)
             {
@@ -966,7 +966,7 @@ namespace Radzen.Blazor
                 LogicalFilterOperator = column.GetLogicalFilterOperator()
             });
 
-            if (LoadData.HasDelegate && IsVirtualizationAllowed())
+            if (LoadData.HasDelegate && IsVirtualizationAllowed() && shouldReload)
             {
                 Data = null;
 #if NET5_0_OR_GREATER
@@ -979,7 +979,10 @@ namespace Radzen.Blazor
                 await JSRuntime.InvokeVoidAsync("Radzen.closeAllPopups", $"{PopupID}{column.GetFilterProperty()}");
             }
 
-            await InvokeAsync(ReloadInternal);
+            if (shouldReload)
+            {
+                await InvokeAsync(ReloadInternal);
+            }
         }
 
         /// <summary>
@@ -1927,7 +1930,7 @@ namespace Radzen.Blazor
                 keyPropertyGetter = PropertyAccess.Getter<TItem, object>(KeyProperty);
             }
 
-            Reset(!IsOData() && !LoadData.HasDelegate);
+            Reset(!IsOData() && !LoadData.HasDelegate && !AllowColumnPicking && !AllowColumnReorder && !AllowColumnResize);
 
             if (!IsOData() && !LoadData.HasDelegate && !Page.HasDelegate)
             {
@@ -1965,7 +1968,7 @@ namespace Radzen.Blazor
             {
                 allColumns.ToList().ForEach(c => 
                 { 
-                    c.ClearFilters(); 
+                    c.ClearFilters();
                     c.ResetSortOrder();
                     c.SetOrderIndex(null);
                     c.SetWidth(null);
@@ -2243,7 +2246,8 @@ namespace Radzen.Blazor
             return new Tuple<GroupRowRenderEventArgs, IReadOnlyDictionary<string, object>>(args, new System.Collections.ObjectModel.ReadOnlyDictionary<string, object>(args.Attributes));
         }
 
-        private bool visibleChanged = false;
+        bool settingsChanged = false;
+        bool visibleChanged = false;
         internal bool firstRender = true;
 
         /// <inheritdoc />
@@ -2261,6 +2265,9 @@ namespace Radzen.Blazor
 
                     case nameof(Visible):
                         visibleChanged = HasChanged(parameter.Value, Visible); break;
+
+                    case nameof(Settings):
+                        settingsChanged = HasChanged(parameter.Value, Settings); break;
 
                     case nameof(AllGroupsExpanded):
                         allGroupsExpandedChanged = HasChanged(parameter.Value, AllGroupsExpanded);
@@ -2349,7 +2356,7 @@ namespace Radzen.Blazor
 
             if (Visible)
             {
-                if (settings != null)
+                if (settings != null && settingsChanged)
                 {
                     await LoadSettingsInternal(settings);
                 }
@@ -2820,8 +2827,6 @@ namespace Radzen.Blazor
             }
             else
             {
-                int hash = item.GetHashCode();
-
                 if (editedItems.Keys.Any(i => ItemEquals(i, item)))
                 {
                     editedItems.Remove(item);
@@ -3274,9 +3279,12 @@ namespace Radzen.Blazor
         {
             if (SettingsChanged.HasDelegate && canSaveSettings)
             {
+                var allColumns = ColumnsCollection.Concat(ColumnsCollection.SelectManyRecursive(c => c.ColumnsCollection))
+                    .Where(c => !string.IsNullOrEmpty(c.Property) || !string.IsNullOrEmpty(c.UniqueID)).ToList();
+
                 settings = new DataGridSettings()
                 {
-                    Columns = ColumnsCollection.ToList().Where(c => !string.IsNullOrEmpty(c.Property) || !string.IsNullOrEmpty(c.UniqueID)).Select(c => new DataGridColumnSettings()
+                    Columns = allColumns.Select(c => new DataGridColumnSettings()
                     {
                         UniqueID = c.UniqueID,
                         Property = c.Property,
@@ -3289,7 +3297,8 @@ namespace Radzen.Blazor
                         FilterOperator = c.GetFilterOperator(),
                         SecondFilterValue = c.GetSecondFilterValue(),
                         SecondFilterOperator = c.GetSecondFilterOperator(),
-                        LogicalFilterOperator = c.GetLogicalFilterOperator()
+                        LogicalFilterOperator = c.GetLogicalFilterOperator(),
+                        CustomFilterExpression = c.GetCustomFilterExpression()
                     }).ToList(),
                     CurrentPage = CurrentPage,
                     PageSize = PageSize,
@@ -3317,10 +3326,12 @@ namespace Radzen.Blazor
 
                 if (settings.Columns != null)
                 {
+                    var allColumns = ColumnsCollection.Concat(ColumnsCollection.SelectManyRecursive(c => c.ColumnsCollection));
+
                     foreach (var column in settings.Columns.OrderBy(c => c.SortIndex))
                     {
-                        var gridColumn = ColumnsCollection.Where(c => !string.IsNullOrEmpty(column.Property) && c.Property == column.Property).FirstOrDefault() ??
-                                ColumnsCollection.Where(c => !string.IsNullOrEmpty(column.UniqueID) && c.UniqueID == column.UniqueID).FirstOrDefault();
+                        var gridColumn = allColumns.Where(c => !string.IsNullOrEmpty(column.Property) && c.Property == column.Property).FirstOrDefault() ??
+                                allColumns.Where(c => !string.IsNullOrEmpty(column.UniqueID) && c.UniqueID == column.UniqueID).FirstOrDefault();
                         if (gridColumn != null)
                         {
                             // Sorting
@@ -3334,8 +3345,8 @@ namespace Radzen.Blazor
 
                     foreach (var column in settings.Columns)
                     {
-                        var gridColumn = ColumnsCollection.Where(c => !string.IsNullOrEmpty(column.Property) && c.Property == column.Property).FirstOrDefault() ??
-                                ColumnsCollection.Where(c => !string.IsNullOrEmpty(column.UniqueID) && c.UniqueID == column.UniqueID).FirstOrDefault();
+                        var gridColumn = allColumns.Where(c => !string.IsNullOrEmpty(column.Property) && c.Property == column.Property).FirstOrDefault() ??
+                                allColumns.Where(c => !string.IsNullOrEmpty(column.UniqueID) && c.UniqueID == column.UniqueID).FirstOrDefault();
                         if (gridColumn != null)
                         {
                             // Visibility
@@ -3389,6 +3400,14 @@ namespace Radzen.Blazor
                                 gridColumn.SetLogicalFilterOperator(column.LogicalFilterOperator);
                                 shouldUpdateState = true;
                             }
+
+                            if (gridColumn.GetCustomFilterExpression() != column.CustomFilterExpression &&
+                                !string.IsNullOrEmpty(column.CustomFilterExpression) &&
+                                gridColumn.FilterOperator == FilterOperator.Custom)
+                            {
+                                gridColumn.SetCustomFilterExpression(column.CustomFilterExpression);
+                                shouldUpdateState = true;
+                            }
                         }
                     }
                 }
@@ -3414,7 +3433,7 @@ namespace Radzen.Blazor
                     shouldUpdateState = true;
                 }
 
-                if (View.Any() == false && Query.Top == null)
+                if (!IsVirtualizationAllowed() && !View.Any() && Query.Top == null)
                 {
                     shouldUpdateState = true;
                 }
