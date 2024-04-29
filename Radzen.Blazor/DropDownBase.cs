@@ -269,7 +269,7 @@ namespace Radzen
         /// </summary>
         /// <value>The selected item changed.</value>
         [Parameter]
-        public Action<object> SelectedItemChanged { get; set; }
+        public EventCallback<object> SelectedItemChanged { get; set; }
 
         /// <summary>
         /// The selected items
@@ -337,6 +337,8 @@ namespace Radzen
             await Change.InvokeAsync(internalValue);
 
             StateHasChanged();
+
+            await JSRuntime.InvokeVoidAsync("Radzen.focusElement", GetId());
         }
 
         internal bool IsAllSelected()
@@ -470,23 +472,23 @@ namespace Radzen
         {
             if (item != null)
             {
-                if (property == TextProperty && textPropertyGetter != null)
-                {
-                    return textPropertyGetter(item);
-                }
-                else if (property == ValueProperty && valuePropertyGetter != null)
-                {
-                    return valuePropertyGetter(item);
-                }
-                else if (property == DisabledProperty && disabledPropertyGetter != null)
-                {
-                    return disabledPropertyGetter(item);
-                }
-
                 var enumValue = item as Enum;
                 if (enumValue != null)
                 {
                     return Radzen.Blazor.EnumExtensions.GetDisplayDescription(enumValue);
+                }
+
+                if (property == TextProperty)
+                {
+                    return textPropertyGetter != null ? textPropertyGetter(item) : PropertyAccess.GetItemOrValueFromProperty(item, property);
+                }
+                else if (property == ValueProperty)
+                {
+                    return valuePropertyGetter != null ? valuePropertyGetter(item) : PropertyAccess.GetItemOrValueFromProperty(item, property);
+                }
+                else if (property == DisabledProperty)
+                {
+                    return disabledPropertyGetter != null ? disabledPropertyGetter(item) : PropertyAccess.GetItemOrValueFromProperty(item, property);
                 }
             }
 
@@ -625,7 +627,7 @@ namespace Radzen
                 if (IsVirtualizationAllowed())
                 {
 #if NET5_0_OR_GREATER
-                    items = virtualItems;
+                    items = virtualItems ?? Enumerable.Empty<object>().ToList();
 #endif
                 }
                 else
@@ -648,7 +650,11 @@ namespace Radzen
 
                     if (!Multiple && !popupOpened && shouldSelectOnChange != false)
                     {
-                        await OnSelectItem(items.ElementAt(selectedIndex), true);
+                        var itemToSelect = items.ElementAtOrDefault(selectedIndex);
+                        if (itemToSelect != null)
+                        {
+                            await OnSelectItem(itemToSelect, true);
+                        }
                     }
                 }
                 catch (Exception)
@@ -663,7 +669,11 @@ namespace Radzen
                 if (selectedIndex >= 0 && selectedIndex <= items.Count() - 1)
                 {
                     await JSRuntime.InvokeAsync<string>("Radzen.setInputValue", search, $"{searchText}".Trim());
-                    await OnSelectItem(items.ElementAt(selectedIndex), true);
+                    var itemToSelect = items.ElementAtOrDefault(selectedIndex);
+                    if (itemToSelect != null)
+                    {
+                        await OnSelectItem(itemToSelect, true);
+                    }
                 }
 
                 var popupOpened = await JSRuntime.InvokeAsync<bool>("Radzen.popupOpened", PopupID);
@@ -1169,7 +1179,7 @@ namespace Radzen
 
                 SetSelectedIndexFromSelectedItem();
 
-                SelectedItemChanged?.Invoke(selectedItem);
+                await SelectedItemChanged.InvokeAsync(selectedItem);
             }
             else
             {
@@ -1311,8 +1321,6 @@ namespace Radzen
                     }
 
                     SetSelectedIndexFromSelectedItem();
-
-                    SelectedItemChanged?.Invoke(selectedItem);
                 }
                 else
                 {

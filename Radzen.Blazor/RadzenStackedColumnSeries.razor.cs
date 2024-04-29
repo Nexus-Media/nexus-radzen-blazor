@@ -102,6 +102,18 @@ namespace Radzen.Blazor
             return Items.Where(item => category(item) == value).Select(Value);
         }
 
+        IEnumerable<object> IChartStackedColumnSeries.ItemsForCategory(double value)
+        {
+            if (Items == null)
+            {
+                return Enumerable.Empty<object>();
+            }
+
+            var category = ComposeCategory(Chart.CategoryScale);
+
+            return Items.Where(item => category(item) == value).Cast<object>();
+        }
+
         double IChartStackedColumnSeries.ValueAt(int index)
         {
             if (Items == null || index < 0 || index >= Items.Count)
@@ -192,7 +204,7 @@ namespace Radzen.Blazor
 
             var sum = Sum(columnIndex, stackedColumnSeries, category(item));
 
-            return Chart.ValueScale.Scale(Math.Max(0, Math.Max(ticks.Start, sum)));
+            return Chart.ValueScale.Scale(Math.Max(ticks.Start, sum));
         }
 
         int ColumnIndex => VisibleColumnSeries.IndexOf(this);

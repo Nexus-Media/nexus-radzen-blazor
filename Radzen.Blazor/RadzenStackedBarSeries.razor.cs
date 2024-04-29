@@ -184,7 +184,7 @@ namespace Radzen.Blazor
 
             var sum = Sum(barIndex, stackedBarSeries, category(item));
 
-            return Chart.CategoryScale.Scale(Math.Max(0, Math.Max(ticks.Start, sum)));
+            return Chart.CategoryScale.Scale(Math.Max(ticks.Start, sum));
         }
 
         int IChartBarSeries.Count
@@ -214,6 +214,18 @@ namespace Radzen.Blazor
             var category = ComposeCategory(Chart.ValueScale);
 
             return Items.Where(item => category(item) == value).Select(Value);
+        }
+
+        IEnumerable<object> IChartStackedBarSeries.ItemsForCategory(double value)
+        {
+            if (Items == null)
+            {
+                return Enumerable.Empty<object>();
+            }
+
+            var category = ComposeCategory(Chart.ValueScale);
+
+            return Items.Where(item => category(item) == value).Cast<object>();
         }
 
         /// <inheritdoc />

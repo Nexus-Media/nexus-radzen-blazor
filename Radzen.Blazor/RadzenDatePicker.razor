@@ -16,10 +16,10 @@
             <span class="@($"rz-calendar rz-calendar-w-btn{(Disabled ? " rz-state-disabled" : "")}")" style="width:100%">
                 <input @ref="@input" @attributes="InputAttributes" disabled="@Disabled" readonly="@IsReadonly" value="@FormattedValue" tabindex="@(Disabled ? "-1" : $"{TabIndex}")"
                        @onchange="@ParseDate" autocomplete="off" type="text" name="@Name" @onkeydown="@(args => OnKeyPress(args))" @onkeydown:preventDefault=preventKeyPress @onkeydown:stopPropagation
-                       class="rz-inputtext @InputClass @(IsReadonly ? "rz-readonly" : "")" id="@Name" placeholder="@Placeholder" onclick="@getOpenPopupForInput()"/>
+                       class="rz-inputtext @InputClass @(IsReadonly ? "rz-readonly" : "")" id="@Name" placeholder="@Placeholder" />
                 @if (ShowButton)
                 {
-	                <button @onmousedown=@OnToggle onclick="@getOpenPopup()" class="@($"rz-datepicker-trigger rz-calendar-button rz-button rz-button-icon-only{(Disabled ? " rz-state-disabled" : "")}")" tabindex="-1" type="button">
+	                <button @onmousedown=@OnToggle class="@($"rz-datepicker-trigger rz-calendar-button rz-button rz-button-icon-only{(Disabled ? " rz-state-disabled" : "")}")" tabindex="-1" type="button">
 		                <span aria-hidden="true" class="@ButtonClasses"></span><span class="rz-button-text"></span>
 	                </button>
                 }
@@ -31,7 +31,7 @@
         }
 
         <Popup id="@PopupID" Lazy=@(PopupRenderMode == PopupRenderMode.OnDemand) @ref=@popup style=@PopupStyle class="@($"{(Inline ? "rz-datepicker-inline " : "")}rz-datepicker")">
-                <div class="rz-datepicker-group">
+                <div class="rz-datepicker-group" @onkeydown="@OnPopupKeyDown">
                     @if (!TimeOnly)
                     {
                         <div class="rz-datepicker-header">
@@ -44,10 +44,10 @@
                             <div class="rz-datepicker-title">
                             <RadzenDropDown @ref="monthDropDown" Style="height:auto;width:120px;margin-top:5px;text-align:left;" TabIndex="@TabIndex"
                                             TValue="int" Value="@CurrentDate.Month" Disabled="@Disabled" Data="@months" TextProperty="Name" ValueProperty="Value"
-                                            Change="@((args) => { SetMonth(int.Parse(args.ToString())); })" />
+                                            Change="@((args) => { SetMonth(int.Parse(args.ToString())); })"/>
                             <RadzenDropDown @ref="yearDropDown" Style="height:auto;width:80px;margin-top:5px;text-align:left;" TabIndex="@TabIndex"
                                             TValue="int" Value="@CurrentDate.Year" Disabled="@Disabled" Data="@years" TextProperty="Name" ValueProperty="Value"
-                                            Change="@((args) => { SetYear(int.Parse(args.ToString())); })" />
+                                            Change="@((args) => { SetYear(int.Parse(args.ToString())); })"/>
                             </div>
                         </div>
                         @if(ShowDays)
@@ -91,7 +91,7 @@
                                                 DateTime date = StartDate.AddDays(dayNumber++);
                                                 var dateArgs = DateAttributes(date);
 
-                                                <td @attributes="@(dateArgs.Attributes)" class="@GetDayCssClass(date, dateArgs)" onmouseup=@(PopupRenderMode == PopupRenderMode.OnDemand || Inline || ShowTime || dateArgs.Disabled ? "" : $"Radzen.closePopup('{PopupID}')")
+                                                <td @attributes="@(dateArgs.Attributes)" class="@GetDayCssClass(date, dateArgs)" @onmouseup=@Close
                                                 @onclick="@(async () => { if (!Disabled && !dateArgs.Disabled) { await SetDay(date); } })">
                                                     <span class=@GetDayCssClass(date, dateArgs, false)>@date.Day</span>
                                                 </td>
@@ -143,9 +143,7 @@
                         }
                         @if (ShowTimeOkButton)
                         {
-                            <button type="button" class="rz-button rz-button-md rz-secondary" tabindex="0"
-                        @onclick="@OkClick"
-                        onmouseup="@($"Radzen.closePopup('{PopupID}')")">
+                            <button type="button" class="rz-button rz-button-md rz-secondary" tabindex="0" @onclick="@OkClick">
                                 <span class="rz-button-text">Ok</span>
                             </button>
                         }

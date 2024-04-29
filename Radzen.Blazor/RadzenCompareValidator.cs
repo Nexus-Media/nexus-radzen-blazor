@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Radzen.Blazor
 {
@@ -51,7 +53,7 @@ namespace Radzen.Blazor
     ///      public string Password { get; set; }
     ///      public double Value { get; set; }
     ///      public string RepeatPassword { get; set; }
-    ///    } 
+    ///    }
     ///    Model model = new Model();
     /// }
     /// </code>
@@ -76,6 +78,13 @@ namespace Radzen.Blazor
         [Parameter]
         public CompareOperator Operator { get; set; } = CompareOperator.Equal;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="RadzenCompareValidator"/> should be validated on value change of the specified Component.
+        /// </summary>
+        /// <value><c>true</c> if should be validated; otherwise, <c>false</c>.</value>
+        [Parameter]
+        public virtual bool ValidateOnComponentValueChange { get; set; } = true;
+
         private int Compare(object componentValue)
         {
             switch (componentValue)
@@ -88,6 +97,41 @@ namespace Radzen.Blazor
                     return 0;
             }
         }
+
+        /// <inheritdoc />
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            var valueChanged = parameters.DidParameterChange(nameof(Value), Value);
+
+            await base.SetParametersAsync(parameters);
+
+            if (ValidateOnComponentValueChange && valueChanged && !firstRender)
+            {
+                var component = Form.FindComponent(Component);
+                if (component != null && component.FieldIdentifier.FieldName != null)
+                {
+                    IsValid = Validate(component);
+
+                    messages.Clear(component.FieldIdentifier);
+
+                    if (!IsValid)
+                    {
+                        messages.Add(component.FieldIdentifier, Text);
+                    }
+
+                    EditContext?.NotifyValidationStateChanged();
+                }
+            }
+        }
+
+        bool firstRender = true;
+        /// <inheritdoc />
+        protected override void OnAfterRender(bool firstRender)
+        {
+            this.firstRender = firstRender;
+            base.OnAfterRender(firstRender);
+        }
+
         /// <inheritdoc />
         protected override bool Validate(IRadzenFormComponent component)
         {

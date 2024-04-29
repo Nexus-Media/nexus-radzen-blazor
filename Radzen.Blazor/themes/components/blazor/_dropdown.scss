@@ -153,6 +153,10 @@ $multiselect-checkbox-margin: 0 0.5rem 0 0 !default;
   &:hover {
     opacity: 1;
   }
+
+  .rz-state-disabled > & {
+    display: none;
+  }
 }
 
 .rz-multiselect-trigger {
@@ -290,6 +294,10 @@ $multiselect-checkbox-margin: 0 0.5rem 0 0 !default;
     @extend %rz-dropdown-item;
     display: flex;
     align-items: center;
+}
+
+.rz-multiselect-item-content {
+  flex: 1;
 }
 
 .rz-multiselect-label-container,
